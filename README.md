@@ -13,6 +13,23 @@ Built for OpenAI Build Week (Codex + GPT-5.6).
 
 ---
 
+## What's in it
+
+- **Paste or drop your week** — a textarea, or drag/choose a file. Calendar
+  exports (`.ics`) are parsed into readable lines, `.json` is flattened, `.md`/
+  `.txt` pass through — all on your device (`lib/ingest.ts`).
+- **A real "what your week was about" reveal** — the loading sequence ends on the
+  actual through-line GPT-5.6 extracted, not a fake spinner.
+- **Three prepared weeks in contrasting registers** — reflective/ink, high-energy/
+  ink, growth/paper — as a landing gallery you can jump straight into, so the
+  accent + canvas engine is visible with zero setup.
+- **A generated scrollytelling site** with one kinetic-type moment at the turning
+  point, a data-derived "shape of the week" seismograph, and section nav dots.
+- **Accessible + resilient** — `prefers-reduced-motion` honored globally
+  (animations snap to visible), custom cursor and heavy motion disabled on touch.
+
+---
+
 ## How it works
 
 Two passes, one contract (`lib/types.ts` → `Narrative`).

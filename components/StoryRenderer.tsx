@@ -14,7 +14,48 @@ export function StoryRenderer({ story }: { story: GeneratedStory }) {
   const { narrative, accent, canvas } = story;
   const fg = canvas === "ink" ? "250 250 247" : "14 14 16";
 
+  const items: { id: string; node: React.ReactNode }[] = [];
   let themeCount = 0;
+
+  narrative.beats.forEach((beat, i) => {
+    // The data-derived shape lands just before the arc resolves.
+    if (beat.kind === "closing") {
+      items.push({
+        id: "beat-shape",
+        node: (
+          <WeekShape
+            beats={narrative.beats}
+            turningPointIndex={story.turningPointIndex}
+            shape={story.shape}
+          />
+        ),
+      });
+    }
+
+    let node: React.ReactNode = null;
+    switch (beat.kind) {
+      case "opening":
+        node = <OpeningStatement beat={beat} period={narrative.period} />;
+        break;
+      case "theme":
+        themeCount += 1;
+        node = <ThemeSection beat={beat} index={themeCount} />;
+        break;
+      case "texture":
+        node = <DataTexture beat={beat} />;
+        break;
+      case "turning-point":
+        node = <TurningPoint beat={beat} shape={story.shape} />;
+        break;
+      case "observation":
+        node = <Observation beat={beat} />;
+        break;
+      case "closing":
+        node = <ClosingLine beat={beat} period={narrative.period} />;
+        break;
+    }
+    items.push({ id: `beat-${i}`, node });
+  });
 
   return (
     <main
@@ -30,37 +71,11 @@ export function StoryRenderer({ story }: { story: GeneratedStory }) {
         } as React.CSSProperties
       }
     >
-      {narrative.beats.map((beat, i) => {
-        switch (beat.kind) {
-          case "opening":
-            return (
-              <OpeningStatement key={i} beat={beat} period={narrative.period} />
-            );
-          case "theme":
-            themeCount += 1;
-            return <ThemeSection key={i} beat={beat} index={themeCount} />;
-          case "texture":
-            return <DataTexture key={i} beat={beat} />;
-          case "turning-point":
-            return <TurningPoint key={i} beat={beat} shape={story.shape} />;
-          case "observation":
-            return <Observation key={i} beat={beat} />;
-          case "closing":
-            // The data-derived shape lands just before the arc resolves.
-            return (
-              <div key={i}>
-                <WeekShape
-                  beats={narrative.beats}
-                  turningPointIndex={story.turningPointIndex}
-                  shape={story.shape}
-                />
-                <ClosingLine beat={beat} period={narrative.period} />
-              </div>
-            );
-          default:
-            return null;
-        }
-      })}
+      {items.map((it) => (
+        <div key={it.id} id={it.id}>
+          {it.node}
+        </div>
+      ))}
     </main>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { MotionConfig } from "framer-motion";
 import "./globals.css";
 import { Cursor } from "@/components/Cursor";
 
@@ -38,8 +39,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className="min-h-screen bg-ink font-body text-paper antialiased">
-        <Cursor />
-        {children}
+        {/* Honor prefers-reduced-motion globally: animations snap to their end
+            state (content visible) instead of animating. */}
+        <MotionConfig reducedMotion="user">
+          <Cursor />
+          {children}
+        </MotionConfig>
       </body>
     </html>
   );

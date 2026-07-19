@@ -6,6 +6,7 @@ import { motion, useScroll } from "framer-motion";
 import type { GeneratedStory, Narrative } from "@/lib/types";
 import { generateStory } from "@/lib/generator";
 import { StoryRenderer } from "@/components/StoryRenderer";
+import { NavDots } from "@/components/NavDots";
 
 const SOURCE_LABEL: Record<string, string> = {
   "gpt-5.6": "read by gpt-5.6",
@@ -72,6 +73,8 @@ export default function StoryPage() {
         </Link>
         <span>{SOURCE_LABEL[story.narrative.meta?.source ?? ""] ?? ""}</span>
       </div>
+
+      <NavDots story={story} />
 
       <StoryRenderer story={story} />
 

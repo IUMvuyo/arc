@@ -22,6 +22,12 @@ export const metadata: Metadata = {
   title: "Arc — a website built from your week",
   description:
     "Hand Arc a messy week of your own notes. It finds the real shape of it and builds you a one-of-a-kind site that tells that story back.",
+  openGraph: {
+    title: "Arc — a website built from your week",
+    description:
+      "GPT-5.6 reads your raw week and finds its real shape. The engine composes a bespoke, cinematic site that tells it back — different every time.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

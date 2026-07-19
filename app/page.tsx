@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { DEMO_INPUT } from "@/lib/demo";
+import { DEMO_WEEKS } from "@/lib/demo";
 
 const STATUS_LINES = [
   "Reading your week…",
@@ -110,7 +110,7 @@ export default function Home() {
             className="w-full resize-y rounded-none border-b border-paper/20 bg-transparent py-4 font-body text-base leading-relaxed text-paper placeholder:text-paper/25 focus:border-accent focus:outline-none"
           />
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="mt-8">
             <button
               onClick={build}
               disabled={busy}
@@ -121,18 +121,27 @@ export default function Home() {
                 →
               </span>
             </button>
-            <button
-              onClick={() => {
-                setInput(DEMO_INPUT);
-                setError(null);
-                areaRef.current?.focus();
-              }}
-              disabled={busy}
-              className="font-body text-sm uppercase tracking-[0.2em] text-paper/50 underline-offset-4 transition-colors hover:text-paper disabled:opacity-50"
-              data-cursor="hover"
-            >
-              Use the demo week
-            </button>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="font-body text-xs uppercase tracking-[0.25em] text-paper/35">
+              or paste a prepared week
+            </span>
+            {DEMO_WEEKS.map((week) => (
+              <button
+                key={week.id}
+                onClick={() => {
+                  setInput(week.input);
+                  setError(null);
+                  areaRef.current?.focus();
+                }}
+                disabled={busy}
+                className="border border-paper/20 px-3 py-1.5 font-body text-xs uppercase tracking-[0.15em] text-paper/60 transition-colors hover:border-accent hover:text-paper disabled:opacity-50"
+                data-cursor="hover"
+              >
+                {week.label}
+              </button>
+            ))}
           </div>
 
           {error ? (

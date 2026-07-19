@@ -4,6 +4,7 @@ import { ThemeSection } from "@/components/sections/ThemeSection";
 import { DataTexture } from "@/components/sections/DataTexture";
 import { TurningPoint } from "@/components/sections/TurningPoint";
 import { Observation } from "@/components/sections/Observation";
+import { WeekShape } from "@/components/sections/WeekShape";
 import { ClosingLine } from "@/components/sections/ClosingLine";
 
 // The generation pass, rendered. The accent + canvas are the only things that
@@ -45,8 +46,16 @@ export function StoryRenderer({ story }: { story: GeneratedStory }) {
           case "observation":
             return <Observation key={i} beat={beat} />;
           case "closing":
+            // The data-derived shape lands just before the arc resolves.
             return (
-              <ClosingLine key={i} beat={beat} period={narrative.period} />
+              <div key={i}>
+                <WeekShape
+                  beats={narrative.beats}
+                  turningPointIndex={story.turningPointIndex}
+                  shape={story.shape}
+                />
+                <ClosingLine beat={beat} period={narrative.period} />
+              </div>
             );
           default:
             return null;

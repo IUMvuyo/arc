@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import type { Narrative } from "@/lib/types";
 import { SYSTEM_PROMPT, NARRATIVE_SCHEMA, buildUserInput } from "@/lib/prompt";
-import { DEMO_NARRATIVE, looksLikeDemo } from "@/lib/demo";
+import { matchDemo } from "@/lib/demo";
 import { heuristicNarrative } from "@/lib/heuristic";
 
 export const runtime = "nodejs";
@@ -56,11 +56,9 @@ export async function POST(req: Request) {
     }
   }
 
-  // 2) Demo-safe fallback: the baked reading for the prepared input,
+  // 2) Demo-safe fallback: the baked reading for a prepared week,
   //    otherwise a local heuristic reading so any week still renders.
-  const narrative: Narrative = looksLikeDemo(input)
-    ? DEMO_NARRATIVE
-    : heuristicNarrative(input);
+  const narrative: Narrative = matchDemo(input) ?? heuristicNarrative(input);
 
   return NextResponse.json({ narrative });
 }

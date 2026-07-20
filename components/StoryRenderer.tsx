@@ -1,4 +1,5 @@
 import type { GeneratedStory } from "@/lib/types";
+import { TitleCard } from "@/components/sections/TitleCard";
 import { OpeningStatement } from "@/components/sections/OpeningStatement";
 import { ThemeSection } from "@/components/sections/ThemeSection";
 import { DataTexture } from "@/components/sections/DataTexture";
@@ -16,7 +17,12 @@ export function StoryRenderer({ story }: { story: GeneratedStory }) {
   const { narrative, accent, canvas } = story;
   const fg = canvas === "ink" ? "250 250 247" : "14 14 16";
 
-  const items: { id: string; node: React.ReactNode }[] = [];
+  const items: { id: string; node: React.ReactNode }[] = [
+    {
+      id: "beat-title",
+      node: <TitleCard title={narrative.title} period={narrative.period} />,
+    },
+  ];
   let themeCount = 0;
 
   narrative.beats.forEach((beat, i) => {

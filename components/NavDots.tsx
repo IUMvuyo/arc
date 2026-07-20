@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { GeneratedStory, BeatKind } from "@/lib/types";
 
 const KIND_LABEL: Record<BeatKind, string> = {
@@ -18,7 +18,7 @@ const KIND_LABEL: Record<BeatKind, string> = {
 // travel. Hidden on small screens and for reduced-motion users.
 export function NavDots({ story }: { story: GeneratedStory }) {
   const items = useMemo(() => {
-    const out: { id: string; label: string }[] = [];
+    const out: { id: string; label: string }[] = [{ id: "beat-title", label: "title" }];
     story.narrative.beats.forEach((b, i) => {
       if (b.kind === "closing") out.push({ id: "beat-shape", label: "the shape" });
       out.push({ id: `beat-${i}`, label: b.kicker?.trim() || KIND_LABEL[b.kind] });
@@ -27,6 +27,29 @@ export function NavDots({ story }: { story: GeneratedStory }) {
   }, [story]);
 
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
+  activeRef.current = active;
+
+  // Keyboard travel between sections.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      let next: number | null = null;
+      if (["ArrowDown", "ArrowRight", "j"].includes(e.key)) {
+        next = Math.min(items.length - 1, activeRef.current + 1);
+      } else if (["ArrowUp", "ArrowLeft", "k"].includes(e.key)) {
+        next = Math.max(0, activeRef.current - 1);
+      }
+      if (next !== null) {
+        e.preventDefault();
+        document.getElementById(items[next].id)?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [items]);
 
   useEffect(() => {
     const ratios = new Map<string, number>();

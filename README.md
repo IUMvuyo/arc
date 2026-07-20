@@ -15,16 +15,21 @@ Built for OpenAI Build Week (Codex + GPT-5.6).
 
 ## What's in it
 
-- **Paste or drop your week** — a textarea, or drag/choose a file. Calendar
-  exports (`.ics`) are parsed into readable lines, `.json` is flattened, `.md`/
-  `.txt` pass through — all on your device (`lib/ingest.ts`).
-- **A real "what your week was about" reveal** — the loading sequence ends on the
-  actual through-line GPT-5.6 extracted, not a fake spinner.
+- **Multimodal input** — paste text, or drop/choose a file: a `.ics` calendar
+  export (parsed to readable time-ordered lines), `.json`, `.md`/`.txt`, **or a
+  photo of your notebook** — GPT-5.6 vision reads a handwritten page directly
+  (`lib/ingest.ts`, `lib/analyze.ts`). Files are handled on your device.
+- **A live "watch it read" reveal** — a streaming endpoint (`/api/analyze/stream`,
+  SSE) sends the through-line, then each beat as the reading assembles. The
+  landing "reading room" renders them in real time — the same whether the reading
+  came from the model or the demo-safe fallback.
 - **Three prepared weeks in contrasting registers** — reflective/ink, high-energy/
   ink, growth/paper — as a landing gallery you can jump straight into, so the
   accent + canvas engine is visible with zero setup.
-- **A generated scrollytelling site** with one kinetic-type moment at the turning
-  point, a data-derived "shape of the week" seismograph, and section nav dots.
+- **A generated cinematic site** — a film-style title card, one kinetic-type
+  moment at the turning point, a data-derived "shape of the week" seismograph,
+  eight section types composed by narrative shape, section nav dots, and keyboard
+  travel (arrows / `j` / `k`).
 - **Accessible + resilient** — `prefers-reduced-motion` honored globally
   (animations snap to visible), custom cursor and heavy motion disabled on touch.
 
@@ -65,21 +70,28 @@ reading of the prepared demo week (`lib/demo.ts`), and to a local heuristic read
 network. The story page shows an honest badge: `read by gpt-5.6` / `demo reading` /
 `local reading`.
 
-Click **Use the demo week** on the landing page for the prepared input.
+Click any **prepared week** chip or gallery card on the landing page.
 
 ## Section-type system
+
+The model composes a site by ordering these eight types; the generator normalizes
+the result and the renderer maps each to a component.
 
 | Beat kind       | Component            | Role                                             |
 |-----------------|----------------------|--------------------------------------------------|
 | `opening`       | `OpeningStatement`   | One true sentence, monumental, full-bleed        |
 | `theme`         | `ThemeSection`       | A recurring thread — editorial split             |
 | `texture`       | `DataTexture`        | The raw material as a ledger of real fragments   |
+| `pull-line`     | `PullLine`           | A single towering realization, held alone        |
+| `diptych`       | `Diptych`            | Two statements in tension — said vs did          |
 | `turning-point` | `TurningPoint`       | **The** kinetic-type moment (one per site)       |
 | `observation`   | `Observation`        | One honest, quiet aside                          |
 | `closing`       | `ClosingLine`        | The arc resolved                                 |
 
-Adding a new section type = add a `BeatKind`, a component, and a case in
-`StoryRenderer`. The generator handles ordering and rhythm.
+Plus a `TitleCard` cold open and a data-derived `WeekShape` interstitial, both
+synthesized by the renderer. Adding a section type = add a `BeatKind`, a
+component, a `StoryRenderer` case, and a nav label. The generator handles ordering,
+the single-turning-point guarantee, and rhythm.
 
 ## Accent pairs (tone → accent + canvas)
 
@@ -92,10 +104,17 @@ Adding a new section type = add a `BeatKind`, a component, and a case in
 
 Accent + canvas are the *only* things that vary structurally between stories.
 
+## Endpoints
+
+- `POST /api/analyze` — `{ input, image? }` → `{ narrative }` (one-shot).
+- `POST /api/analyze/stream` — same input, streams the reading as SSE
+  (`through-line` → `beat`… → `narrative` → `done`) for the live reveal.
+
 ## Stack
 
 Next.js 15 (App Router) · React 19 · Tailwind (custom tokens, not defaults) ·
-Framer Motion · OpenAI Responses API · deploys to Vercel.
+Framer Motion · OpenAI Responses API (structured output + vision + streaming) ·
+deploys to Vercel. Unit tests: `node:test` + `tsx` (`npm test`).
 
 ## Deploy
 

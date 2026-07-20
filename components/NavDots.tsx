@@ -7,6 +7,8 @@ const KIND_LABEL: Record<BeatKind, string> = {
   opening: "the opening",
   theme: "a thread",
   texture: "the material",
+  "pull-line": "a line",
+  diptych: "the tension",
   "turning-point": "the turn",
   observation: "a note",
   closing: "the close",

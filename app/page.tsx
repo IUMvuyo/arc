@@ -1,42 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { DEMO_WEEKS, type DemoWeek } from "@/lib/demo";
 import { normalizeUpload } from "@/lib/ingest";
 import { ACCENTS } from "@/lib/palette";
-import type { Narrative } from "@/lib/types";
-
-const STATUS_LINES = [
-  "Reading your week…",
-  "Finding what recurred, what you avoided…",
-  "Locating the turning point…",
-  "Choosing the register…",
-  "Composing the site…",
-];
+import type { Narrative, Tone } from "@/lib/types";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+type StreamBeat = { kind: string; kicker: string; headline: string };
 
 export default function Home() {
   const router = useRouter();
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [statusIndex, setStatusIndex] = useState(0);
-  const [found, setFound] = useState<Narrative | null>(null);
+  const [head, setHead] = useState<{ throughLine: string; tone: Tone } | null>(null);
+  const [streamBeats, setStreamBeats] = useState<StreamBeat[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!busy || found) return;
-    setStatusIndex(0);
-    const id = setInterval(() => {
-      setStatusIndex((i) => Math.min(i + 1, STATUS_LINES.length - 1));
-    }, 850);
-    return () => clearInterval(id);
-  }, [busy, found]);
 
   async function ingestFile(file: File) {
     try {
@@ -56,30 +41,56 @@ export default function Home() {
       return;
     }
     setError(null);
-    setFound(null);
+    setHead(null);
+    setStreamBeats([]);
     setBusy(true);
+
     try {
-      const [res] = await Promise.all([
-        fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ input }),
-        }),
-        new Promise((r) => setTimeout(r, 2200)),
-      ]);
-      const data = await res.json();
-      if (!res.ok || !data?.narrative) {
-        throw new Error(data?.error || "Arc couldn't read that. Try again.");
+      const res = await fetch("/api/analyze/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input }),
+      });
+      if (!res.ok || !res.body) {
+        throw new Error((await res.text()) || "Arc couldn't read that. Try again.");
       }
-      sessionStorage.setItem("arc:narrative", JSON.stringify(data.narrative));
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let narrative: Narrative | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let idx: number;
+        while ((idx = buffer.indexOf("\n\n")) !== -1) {
+          const chunk = buffer.slice(0, idx).trim();
+          buffer = buffer.slice(idx + 2);
+          if (!chunk.startsWith("data:")) continue;
+          const msg = JSON.parse(chunk.slice(5).trim());
+          if (msg.type === "through-line") {
+            setHead({ throughLine: msg.value, tone: msg.tone as Tone });
+          } else if (msg.type === "beat") {
+            setStreamBeats((prev) => [...prev, msg as StreamBeat]);
+          } else if (msg.type === "narrative") {
+            narrative = msg.value as Narrative;
+          } else if (msg.type === "error") {
+            throw new Error(msg.value);
+          }
+        }
+      }
+
+      if (!narrative) throw new Error("Arc couldn't read that. Try again.");
+      sessionStorage.setItem("arc:narrative", JSON.stringify(narrative));
       sessionStorage.setItem("arc:input", input);
-      // Let the real found structure land before the site builds.
-      setFound(data.narrative as Narrative);
-      await new Promise((r) => setTimeout(r, 1700));
+      await new Promise((r) => setTimeout(r, 900));
       router.push("/story");
     } catch (e) {
       setBusy(false);
-      setFound(null);
+      setHead(null);
+      setStreamBeats([]);
       setError(e instanceof Error ? e.message : "Something went wrong.");
     }
   }
@@ -89,6 +100,8 @@ export default function Home() {
     sessionStorage.setItem("arc:input", week.input);
     router.push("/story");
   }
+
+  const streamAccent = head ? ACCENTS[head.tone].accent : "74 107 138";
 
   return (
     <main className="grain relative min-h-screen bg-ink text-paper">
@@ -273,7 +286,7 @@ export default function Home() {
         <span>nothing is stored</span>
       </footer>
 
-      {/* The reading → composing sequence, ending on what Arc actually found. */}
+      {/* The reading room — the through-line and beats assemble live. */}
       <AnimatePresence>
         {busy ? (
           <motion.div
@@ -282,47 +295,58 @@ export default function Home() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
             className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-ink px-6"
+            style={{ "--accent": streamAccent } as React.CSSProperties}
           >
-            <div className="w-full max-w-lg">
+            <div className="w-full max-w-xl">
               <div className="h-px w-full overflow-hidden bg-paper/15">
                 <motion.div
                   className="h-full bg-accent"
-                  initial={{ width: "0%" }}
-                  animate={{ width: found ? "100%" : `${((statusIndex + 1) / STATUS_LINES.length) * 100}%` }}
-                  transition={{ duration: 0.8, ease: EASE }}
+                  animate={{ width: `${Math.min(96, 10 + streamBeats.length * 12)}%` }}
+                  transition={{ duration: 0.6, ease: EASE }}
                 />
               </div>
 
-              {found ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, ease: EASE }}
-                  className="mt-10"
-                >
-                  <p className="font-body text-xs uppercase tracking-[0.35em] text-accent">
-                    what your week was about
+              <div className="mt-10 min-h-[3rem]">
+                {head ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: EASE }}
+                  >
+                    <p className="font-body text-xs uppercase tracking-[0.35em] text-accent">
+                      what your week was about
+                    </p>
+                    <p className="mt-4 font-display text-[clamp(1.3rem,2.6vw,1.9rem)] font-light leading-snug tracking-tight text-paper">
+                      {head.throughLine}
+                    </p>
+                  </motion.div>
+                ) : (
+                  <p className="font-display text-lg font-light tracking-tight text-paper/70">
+                    Reading your week…
                   </p>
-                  <p className="mt-5 font-display text-[clamp(1.4rem,3vw,2rem)] font-light leading-snug tracking-tight text-paper">
-                    {found.throughLine}
-                  </p>
-                </motion.div>
-              ) : (
-                <div className="mt-8 h-8 overflow-hidden">
-                  <AnimatePresence mode="wait">
-                    <motion.p
-                      key={statusIndex}
-                      initial={{ y: "100%", opacity: 0 }}
-                      animate={{ y: "0%", opacity: 1 }}
-                      exit={{ y: "-100%", opacity: 0 }}
-                      transition={{ duration: 0.5, ease: EASE }}
-                      className="font-display text-xl font-light tracking-tight text-paper"
-                    >
-                      {STATUS_LINES[statusIndex]}
-                    </motion.p>
+                )}
+              </div>
+
+              {streamBeats.length > 0 ? (
+                <ul className="mt-8 space-y-2 border-t border-paper/10 pt-6">
+                  <AnimatePresence initial={false}>
+                    {streamBeats.map((b, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, ease: EASE }}
+                        className="flex items-baseline gap-3 font-body text-sm text-paper/55"
+                      >
+                        <span className="w-24 shrink-0 truncate text-[0.65rem] uppercase tracking-[0.2em] text-accent">
+                          {b.kicker || b.kind.replace("-", " ")}
+                        </span>
+                        <span className="truncate">{b.headline}</span>
+                      </motion.li>
+                    ))}
                   </AnimatePresence>
-                </div>
-              )}
+                </ul>
+              ) : null}
             </div>
           </motion.div>
         ) : null}

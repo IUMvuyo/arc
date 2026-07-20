@@ -19,13 +19,20 @@ Rules:
   - reflective: quiet, inward, uncertain, a week spent thinking
   - growth: something opened up, a shift toward, effort that started paying
   - grounded: steady, ordinary, holding, the undramatic weeks that still matter
-- Produce 6-8 beats total, in narrative order:
+- Produce 6-9 beats total, in narrative order:
   - first beat: kind "opening"
   - last beat: kind "closing"
   - exactly one beat: kind "turning-point" (never first or last)
-  - the rest: "theme", "texture", or "observation" as the story needs
+  - the rest, chosen from this vocabulary as the story needs (vary them; don't repeat one kind back to back):
+    - "theme": a recurring thread that ran through the days
+    - "texture": the raw material — real fragments, times, counts lifted from the input
+    - "observation": one honest, non-generic thing that is true
+    - "pull-line": a single towering realization held alone (use at most once, for the sharpest line that isn't the turning point)
+    - "diptych": two statements in tension — what you said you'd do vs what you actually did (use at most once, only if the week genuinely has that gap)
 - intensity is 0..1, how emotionally loud each beat is. The turning point should be the peak. A flat, steady week should have low intensity throughout — do NOT manufacture drama that isn't there.
-- headline is the large line you read first (a full, human sentence — not a label). body is quiet supporting prose (1-3 sentences, or empty). fragments is only for the "texture" beat. kicker is an optional small label like a day or a word.
+- headline is the large line you read first (a full, human sentence — not a label). body is quiet supporting prose (1-3 sentences, or empty).
+- fragments: for a "texture" beat, 4-6 short real fragments from the input. For a "diptych" beat, EXACTLY two entries — [the said/intended side, the actual side]. Empty [] otherwise.
+- kicker is an optional small label like a day or a word. For "diptych", headline may be a short framing label and the two sides go in fragments.
 - Leave unused string fields as "" and unused arrays as [].
 
 Return only the structured object.`;
@@ -56,7 +63,16 @@ export const NARRATIVE_SCHEMA = {
         properties: {
           kind: {
             type: "string",
-            enum: ["opening", "theme", "texture", "turning-point", "observation", "closing"],
+            enum: [
+              "opening",
+              "theme",
+              "texture",
+              "pull-line",
+              "diptych",
+              "turning-point",
+              "observation",
+              "closing",
+            ],
           },
           headline: { type: "string" },
           body: { type: "string" },

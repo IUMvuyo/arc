@@ -2,6 +2,8 @@ import type { GeneratedStory } from "@/lib/types";
 import { OpeningStatement } from "@/components/sections/OpeningStatement";
 import { ThemeSection } from "@/components/sections/ThemeSection";
 import { DataTexture } from "@/components/sections/DataTexture";
+import { PullLine } from "@/components/sections/PullLine";
+import { Diptych } from "@/components/sections/Diptych";
 import { TurningPoint } from "@/components/sections/TurningPoint";
 import { Observation } from "@/components/sections/Observation";
 import { WeekShape } from "@/components/sections/WeekShape";
@@ -43,6 +45,12 @@ export function StoryRenderer({ story }: { story: GeneratedStory }) {
         break;
       case "texture":
         node = <DataTexture beat={beat} />;
+        break;
+      case "pull-line":
+        node = <PullLine beat={beat} />;
+        break;
+      case "diptych":
+        node = <Diptych beat={beat} />;
         break;
       case "turning-point":
         node = <TurningPoint beat={beat} shape={story.shape} />;

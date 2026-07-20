@@ -81,6 +81,14 @@ const REFLECTIVE_NARRATIVE: Narrative = {
       intensity: 0.52,
     },
     {
+      kind: "diptych",
+      kicker: "",
+      headline: "the goals doc, and the week that happened",
+      body: "",
+      fragments: ["Rest one day a week.", "Six lunches at the desk, and a Saturday meeting you only just declined."],
+      intensity: 0.5,
+    },
+    {
       kind: "observation",
       kicker: "the honest part",
       headline:
@@ -98,10 +106,10 @@ const REFLECTIVE_NARRATIVE: Narrative = {
       intensity: 0.96,
     },
     {
-      kind: "theme",
+      kind: "pull-line",
       kicker: "the day after",
       headline: "Two things you dreaded for a week took a hundred minutes combined.",
-      body: "The investor update took forty of them. You had given each of these a full week of dread, up front, in advance.",
+      body: "",
       fragments: [],
       intensity: 0.5,
     },

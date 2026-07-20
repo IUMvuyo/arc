@@ -9,6 +9,8 @@ export type BeatKind =
   | "opening" // the opening statement — one true sentence about the week
   | "theme" // a recurring thread that ran through the days
   | "texture" // data-as-texture — the raw material, rendered as atmosphere not a chart
+  | "pull-line" // a single towering line — a realization held alone, full-bleed
+  | "diptych" // two statements in tension — what you said vs what you did
   | "turning-point" // the moment the week changed — the hard visual break
   | "observation" // one honest, non-generic thing that is true
   | "closing"; // the closing line
@@ -19,7 +21,10 @@ export interface Beat {
   headline: string;
   /** Supporting prose. Quiet, never padded. Optional for texture/closing. */
   body?: string;
-  /** For `texture` beats: short fragments lifted from the raw input, shown as texture. */
+  /**
+   * For `texture` beats: short fragments lifted from the raw input, shown as texture.
+   * For `diptych` beats: exactly two entries — the left and right sides of the tension.
+   */
   fragments?: string[];
   /** A small label above the headline (e.g. "Tuesday", "the through-line"). Optional. */
   kicker?: string;

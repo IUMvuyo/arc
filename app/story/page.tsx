@@ -42,7 +42,7 @@ export default function StoryPage() {
         </p>
         <Link
           href="/"
-          className="mt-6 font-body text-sm uppercase tracking-[0.25em] text-accent underline-offset-4 hover:underline"
+          className="mt-6 font-mono text-xs uppercase tracking-[0.25em] text-accent underline-offset-4 hover:underline"
         >
           Start from your week →
         </Link>
@@ -58,14 +58,14 @@ export default function StoryPage() {
 
   return (
     <div className="relative">
-      {/* Light scroll chrome — not a signature moment, just orientation. */}
+      {/* Light scroll chrome. Not a signature moment, just orientation. */}
       <motion.div
         className="fixed left-0 top-0 z-40 h-0.5 w-full origin-left bg-accent"
         style={{ scaleX: scrollYProgress }}
       />
 
       <div
-        className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 font-body text-xs uppercase tracking-[0.25em] sm:px-10 md:px-16"
+        className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 font-mono text-[0.7rem] uppercase tracking-[0.24em] sm:px-10 md:px-16"
         style={{ color: `rgb(${chrome} / 0.5)` }}
       >
         <Link href="/" className="pointer-events-auto hover:opacity-100" data-cursor="hover">
@@ -86,7 +86,7 @@ export default function StoryPage() {
       >
         <Link
           href="/"
-          className="font-body text-sm uppercase tracking-[0.25em] text-accent underline-offset-4 hover:underline"
+          className="font-mono text-xs uppercase tracking-[0.24em] text-accent underline-offset-4 hover:underline"
           data-cursor="hover"
         >
           Build another week →

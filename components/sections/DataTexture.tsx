@@ -7,7 +7,7 @@ import { Reveal } from "@/components/Reveal";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 // Data-as-texture: the raw material of the week, shown as a ledger of found
-// scraps — not a chart, not a stat card. Atmosphere made of real fragments.
+// scraps. Not a chart, not a stat card. Atmosphere made of real fragments.
 export function DataTexture({ beat }: { beat: Beat }) {
   const reduce = useReducedMotion();
   const fragments = beat.fragments ?? [];
@@ -18,7 +18,7 @@ export function DataTexture({ beat }: { beat: Beat }) {
         <div className="md:col-span-4">
           <Reveal variant="hold">
             {beat.kicker ? (
-              <p className="font-body text-xs uppercase tracking-[0.3em] text-accent">
+              <p className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-accent">
                 {beat.kicker}
               </p>
             ) : null}
@@ -38,7 +38,7 @@ export function DataTexture({ beat }: { beat: Beat }) {
           {fragments.map((f, i) => (
             <motion.li
               key={i}
-              className="flex items-baseline gap-4 font-body text-base text-fg/60 sm:text-lg"
+              className="flex items-baseline gap-4 font-mono text-sm text-fg/60 sm:text-base"
               variants={{
                 hidden: { opacity: 0, x: -14 },
                 show: { opacity: 1, x: 0, transition: { duration: 0.7, ease: EASE } },

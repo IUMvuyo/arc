@@ -108,3 +108,17 @@ test("each baked demo week generates a valid, coherent story", () => {
     assert.equal(s.accent.tone, week.narrative.tone, week.id);
   }
 });
+
+test("no demo content contains an em or en dash", () => {
+  const dash = /[—–]/;
+  for (const week of DEMO_WEEKS) {
+    assert.ok(!dash.test(week.input), `input has a dash: ${week.id}`);
+    assert.ok(!dash.test(week.narrative.title), `title has a dash: ${week.id}`);
+    assert.ok(!dash.test(week.narrative.throughLine), `throughLine has a dash: ${week.id}`);
+    for (const b of week.narrative.beats) {
+      assert.ok(!dash.test(b.headline), `headline has a dash: ${week.id}`);
+      assert.ok(!dash.test(b.body ?? ""), `body has a dash: ${week.id}`);
+      assert.ok(!dash.test((b.fragments ?? []).join(" ")), `fragment has a dash: ${week.id}`);
+    }
+  }
+});

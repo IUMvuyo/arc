@@ -1,7 +1,7 @@
 import type { Beat } from "@/lib/types";
 import { Reveal, HairRule } from "@/components/Reveal";
 
-// The closing line — the arc resolved. Monumental again, but settled.
+// The closing line. The arc resolved. Monumental again, but settled.
 export function ClosingLine({
   beat,
   period,
@@ -30,9 +30,9 @@ export function ClosingLine({
 
       <div>
         <HairRule className="mb-6" />
-        <div className="flex items-center justify-between font-body text-xs uppercase tracking-[0.3em] text-fg/45">
-          <span>Arc</span>
-          <span>built from {period}</span>
+        <div className="flex items-center justify-between font-mono text-[0.7rem] uppercase tracking-[0.26em] text-fg/45">
+          <span>Arc / built from {period}</span>
+          <span>fin</span>
         </div>
       </div>
     </section>

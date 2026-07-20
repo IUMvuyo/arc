@@ -100,7 +100,7 @@ export function NavDots({ story }: { story: GeneratedStory }) {
             aria-current={isActive ? "true" : undefined}
           >
             <span
-              className="whitespace-nowrap font-body text-[0.65rem] uppercase tracking-[0.2em] opacity-0 transition-opacity duration-300 group-hover:opacity-60"
+              className="whitespace-nowrap font-mono text-[0.62rem] uppercase tracking-[0.18em] opacity-0 transition-opacity duration-300 group-hover:opacity-60"
             >
               {it.label}
             </span>

@@ -6,8 +6,8 @@ import type { Beat, StoryShape } from "@/lib/types";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 // A quiet, data-derived interstitial: the intensity GPT-5.6 read in each beat,
-// drawn as a seismograph of the week. Not a chart — no axes, no numbers, one
-// colour — just the felt shape of the days. Proof the site comes from structure.
+// drawn as a seismograph of the week. Not a chart. No axes, no numbers, one
+// colour, just the felt shape of the days. Proof the site comes from structure.
 export function WeekShape({
   beats,
   turningPointIndex,
@@ -21,11 +21,11 @@ export function WeekShape({
   const caption =
     shape === "pivotal"
       ? "One day carried the rest of it."
-      : "A level week — no single day ran away with it.";
+      : "A level week. No single day ran away with it.";
 
   return (
     <section className="px-6 py-24 sm:px-10 md:px-16 md:py-28">
-      <p className="mb-10 font-body text-xs uppercase tracking-[0.35em] text-accent">
+      <p className="mb-10 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-accent">
         the shape of the week
       </p>
 
@@ -48,7 +48,7 @@ export function WeekShape({
       </div>
 
       <div className="mt-6 h-px w-full bg-fg/15" />
-      <p className="mt-6 max-w-reading font-body text-base leading-relaxed text-fg/55">
+      <p className="mt-6 max-w-reading font-mono text-sm leading-relaxed text-fg/55">
         {caption}
       </p>
     </section>

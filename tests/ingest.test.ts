@@ -18,8 +18,8 @@ test("parseICS turns events into readable, time-ordered lines", () => {
   const out = parseICS(SAMPLE_ICS);
   const lines = out.split("\n");
   assert.equal(lines.length, 2);
-  assert.match(lines[0], /17 Mar 09:00 — Standup/);
-  assert.match(lines[1], /17 Mar 14:00 — The call I keep moving/);
+  assert.match(lines[0], /17 Mar 09:00 \/ Standup/);
+  assert.match(lines[1], /17 Mar 14:00 \/ The call I keep moving/);
 });
 
 test("parseICS unfolds folded continuation lines", () => {

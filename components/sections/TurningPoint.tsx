@@ -15,7 +15,7 @@ import { Reveal } from "@/components/Reveal";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 // THE moment. The single kinetic-type beat: as the turning point enters view the
-// display face physically gains mass — weight, optical size and softness climb —
+// display face physically gains mass (weight, optical size and softness climb),
 // scaled to the emotional intensity GPT-5.6 detected here. Max one per site.
 export function TurningPoint({
   beat,
@@ -50,7 +50,7 @@ export function TurningPoint({
         pivotal ? "min-h-[128vh] py-40" : "min-h-screen py-28"
       }`}
     >
-      {/* The hard visual break — a full-bleed rule that draws across. */}
+      {/* The hard visual break: a full-bleed rule that draws across. */}
       {pivotal ? (
         <motion.div
           className="absolute left-0 top-0 h-px w-full origin-left bg-accent/50"
@@ -61,13 +61,12 @@ export function TurningPoint({
         />
       ) : null}
 
-      {beat.kicker ? (
-        <Reveal variant="hold">
-          <p className="mb-10 font-body text-sm uppercase tracking-[0.4em] text-accent">
-            {beat.kicker}
-          </p>
-        </Reveal>
-      ) : null}
+      <Reveal variant="hold">
+        <span className="mb-10 flex items-center gap-3 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-accent">
+          <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+          {beat.kicker || "the turn"}
+        </span>
+      </Reveal>
 
       <motion.h2
         className="font-display max-w-[68rem] leading-[0.98] tracking-tightest text-fg"

@@ -22,6 +22,16 @@ const config: Config = {
         // Wired in app/layout.tsx via next/font (variable axes).
         display: ["var(--font-display)", "Georgia", "serif"],
         body: ["var(--font-body)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 42s linear infinite",
       },
       letterSpacing: {
         tightest: "-0.055em",

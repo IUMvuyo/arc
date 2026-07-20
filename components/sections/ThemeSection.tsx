@@ -2,7 +2,7 @@ import type { Beat } from "@/lib/types";
 import { Reveal, HairRule } from "@/components/Reveal";
 
 // A recurring thread. Editorial split: a small marker column against a wide
-// column of type. Never a card — the grid is alignment infrastructure only.
+// column of type. Never a card. The grid is alignment infrastructure only.
 export function ThemeSection({ beat, index }: { beat: Beat; index: number }) {
   const label = String(index).padStart(2, "0");
   return (
@@ -11,9 +11,9 @@ export function ThemeSection({ beat, index }: { beat: Beat; index: number }) {
       <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-8">
         <div className="md:col-span-3">
           <Reveal variant="hold">
-            <span className="font-body text-sm tabular-nums text-accent">{label}</span>
+            <span className="font-mono text-2xl tabular-nums text-accent">{label}</span>
             {beat.kicker ? (
-              <p className="mt-3 font-body text-xs uppercase tracking-[0.3em] text-fg/50">
+              <p className="mt-3 font-mono text-[0.7rem] uppercase tracking-[0.24em] text-fg/50">
                 {beat.kicker}
               </p>
             ) : null}

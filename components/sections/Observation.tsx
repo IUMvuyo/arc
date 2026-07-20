@@ -1,15 +1,15 @@
 import type { Beat } from "@/lib/types";
 import { Reveal } from "@/components/Reveal";
 
-// One honest observation — the thing a perceptive friend would say. Held quiet
-// and centred so it reads as an aside, not a headline competing with the arc.
+// One honest observation. The thing a perceptive friend would say. Held quiet
+// and offset so it reads as an aside, not a headline competing with the arc.
 export function Observation({ beat }: { beat: Beat }) {
   return (
     <section className="flex min-h-[70vh] items-center px-6 py-24 sm:px-10 md:px-16">
-      <div className="mx-auto max-w-3xl text-center">
+      <div className="max-w-3xl md:ml-[16%]">
         {beat.kicker ? (
           <Reveal variant="hold">
-            <p className="mb-8 font-body text-xs uppercase tracking-[0.35em] text-accent">
+            <p className="mb-8 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-accent">
               {beat.kicker}
             </p>
           </Reveal>
@@ -21,7 +21,7 @@ export function Observation({ beat }: { beat: Beat }) {
         </Reveal>
         {beat.body ? (
           <Reveal variant="hold" delay={0.2}>
-            <p className="mx-auto mt-8 max-w-reading font-body text-base leading-relaxed text-fg/55">
+            <p className="mt-8 max-w-reading font-body text-base leading-relaxed text-fg/55">
               {beat.body}
             </p>
           </Reveal>

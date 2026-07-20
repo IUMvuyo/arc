@@ -1,6 +1,6 @@
 // Turn an uploaded file into pasteable week text. Calendar exports (.ics) become
-// readable lines; markdown/text/json pass through. Everything runs client-side —
-// nothing is uploaded anywhere.
+// readable lines; markdown/text/json pass through. Everything runs client-side.
+// Nothing is uploaded anywhere.
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -43,10 +43,10 @@ export function parseICS(text: string): string {
     }
   }
 
-  if (!events.length) return text; // not an ICS we understood — hand it back raw
+  if (!events.length) return text; // not an ICS we understood, hand it back raw
   events.sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""));
   return events
-    .map((e) => `${formatICSDate(e.start)} — ${e.summary ?? "(untitled)"}`)
+    .map((e) => `${formatICSDate(e.start)} / ${e.summary ?? "(untitled)"}`)
     .join("\n");
 }
 

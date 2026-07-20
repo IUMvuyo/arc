@@ -6,9 +6,33 @@ import { AnimatePresence, motion } from "framer-motion";
 import { DEMO_WEEKS, type DemoWeek } from "@/lib/demo";
 import { normalizeUpload } from "@/lib/ingest";
 import { ACCENTS } from "@/lib/palette";
+import { Marquee } from "@/components/Marquee";
+import { Label } from "@/components/Label";
 import type { Narrative, Tone } from "@/lib/types";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+// The raw material of a week, streaming past. Clean, no dashes.
+const MARQUEE = [
+  "06:40 awake before the alarm",
+  "the doc, opened and closed",
+  "lunch at the desk, day six",
+  "goals doc untouched since Feb",
+  "02:14 v2 is live, hands shaking",
+  "product hunt, #2 by noon",
+  "the shoes by the door since January",
+  "next week, for two months",
+  "the call you keep moving",
+  "you sent the offer at 18:40",
+  "2.1km, you walked half of it",
+  "the investor update, five days late",
+];
+
+const PROCESS = [
+  { n: "01", label: "You paste the mess", note: "journal, calendar, goals, a photo of your notebook" },
+  { n: "02", label: "It finds the turn", note: "the one honest thing the week was about" },
+  { n: "03", label: "It builds the site", note: "a bespoke, cinematic page, generated live" },
+];
 
 type StreamBeat = { kind: string; kicker: string; headline: string };
 
@@ -36,7 +60,6 @@ export default function Home() {
   async function ingestFile(file: File) {
     try {
       if (file.type.startsWith("image/")) {
-        // A photo of a journal page / whiteboard — GPT-5.6 vision reads it.
         setImage({ data: await readImage(file), name: file.name });
         setError(null);
         return;
@@ -47,13 +70,13 @@ export default function Home() {
       setError(null);
       areaRef.current?.focus();
     } catch {
-      setError("Couldn't read that file. Try pasting the text instead.");
+      setError("Could not read that file. Try pasting the text instead.");
     }
   }
 
   async function build() {
     if (!image && input.trim().length < 40) {
-      setError("Give Arc a bit more of your week to read — a few days of notes, or a photo.");
+      setError("Give Arc a bit more of your week to read. A few days of notes, or a photo.");
       areaRef.current?.focus();
       return;
     }
@@ -69,7 +92,7 @@ export default function Home() {
         body: JSON.stringify({ input, image: image?.data }),
       });
       if (!res.ok || !res.body) {
-        throw new Error((await res.text()) || "Arc couldn't read that. Try again.");
+        throw new Error((await res.text()) || "Arc could not read that. Try again.");
       }
 
       const reader = res.body.getReader();
@@ -99,7 +122,7 @@ export default function Home() {
         }
       }
 
-      if (!narrative) throw new Error("Arc couldn't read that. Try again.");
+      if (!narrative) throw new Error("Arc could not read that. Try again.");
       sessionStorage.setItem("arc:narrative", JSON.stringify(narrative));
       sessionStorage.setItem("arc:input", input);
       await new Promise((r) => setTimeout(r, 900));
@@ -119,87 +142,128 @@ export default function Home() {
   }
 
   const streamAccent = head ? ACCENTS[head.tone].accent : "74 107 138";
+  const count = input.trim().length;
 
   return (
-    <main className="grain relative min-h-screen bg-ink text-paper">
-      <div className="px-6 py-10 sm:px-10 md:px-16">
-        <header className="flex items-baseline justify-between">
-          <span className="font-display text-lg font-medium tracking-tight">Arc</span>
-          <span className="max-w-[16rem] text-right font-body text-xs uppercase tracking-[0.25em] text-paper/45">
-            a site built from your own week
-          </span>
-        </header>
+    <main className="grain relative min-h-screen overflow-x-hidden bg-ink text-paper">
+      {/* Masthead */}
+      <header className="flex items-center justify-between border-b border-paper/12 px-5 py-4 sm:px-8 md:px-12">
+        <span className="font-mono text-sm font-bold uppercase tracking-[0.3em]">Arc</span>
+        <div className="hidden font-mono text-[0.7rem] uppercase tracking-[0.28em] text-paper/45 sm:block">
+          an instrument for reading your own week
+        </div>
+        <span className="font-mono text-[0.7rem] uppercase tracking-[0.28em] text-paper/45">
+          Ed. 001 / 2026
+        </span>
+      </header>
 
-        <div className="mx-auto flex min-h-[80vh] max-w-5xl flex-col justify-center py-16">
+      {/* Hero: asymmetric broken type against a mono process index */}
+      <section className="grid grid-cols-1 gap-12 px-5 pb-20 pt-16 sm:px-8 md:grid-cols-12 md:gap-8 md:px-12 md:pb-28 md:pt-24">
+        <div className="md:col-span-8">
           <motion.h1
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: EASE }}
-            className="font-display text-[clamp(2.6rem,7.5vw,6rem)] font-light leading-[0.96] tracking-tightest"
+            className="font-display text-[clamp(3rem,11vw,9rem)] font-light leading-[0.86] tracking-tightest"
           >
-            Hand me a messy week.
-            <br />
-            <span className="text-accent">I&apos;ll show you its shape.</span>
+            <span className="block">Hand me a</span>
+            <span className="block">messy week.</span>
+            <span className="mt-2 block text-accent">I&apos;ll show you</span>
+            <span className="block text-accent">its shape.</span>
           </motion.h1>
+        </div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="mt-8 max-w-xl font-body text-lg leading-relaxed text-paper/60"
-          >
-            Paste the mess — journal fragments, a calendar dump, a goals doc, voice
-            notes. Arc finds the real narrative of the week and builds you a
-            one-of-a-kind site that tells it back. Different every time, because
-            your week is.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.75 }}
-            className="mt-12"
-          >
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDrag(true);
-              }}
-              onDragLeave={() => setDrag(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDrag(false);
-                const file = e.dataTransfer.files?.[0];
-                if (file) ingestFile(file);
-              }}
-              className={`relative transition-colors ${drag ? "ring-1 ring-accent" : ""}`}
-            >
-              <textarea
-                ref={areaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={"MON — woke at 6:40, couldn't get back down.\ncalendar: 09:00 standup / 14:00 the call I keep moving…\njournal: told myself I'd finally send it. didn't."}
-                rows={7}
-                spellCheck={false}
-                className="w-full resize-y rounded-none border-b border-paper/20 bg-transparent py-4 font-body text-base leading-relaxed text-paper placeholder:text-paper/25 focus:border-accent focus:outline-none"
-              />
-              {drag ? (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-ink/70 font-body text-sm uppercase tracking-[0.25em] text-accent">
-                  drop it — Arc will read it
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="flex flex-col justify-end gap-8 md:col-span-4 md:pb-3"
+        >
+          <p className="max-w-xs font-body text-base leading-relaxed text-paper/60">
+            You hand it the mess. GPT-5.6 finds the real narrative of the week, and
+            the engine builds you a one of a kind site that tells it back. Different
+            every time, because your week is.
+          </p>
+          <ul className="space-y-4 border-t border-paper/12 pt-6">
+            {PROCESS.map((p) => (
+              <li key={p.n} className="flex gap-4">
+                <span className="font-mono text-[0.7rem] text-accent">{p.n}</span>
+                <div>
+                  <div className="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-paper/80">
+                    {p.label}
+                  </div>
+                  <div className="mt-1 font-body text-sm leading-snug text-paper/40">
+                    {p.note}
+                  </div>
                 </div>
-              ) : null}
-            </div>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      </section>
 
-            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 font-body text-xs uppercase tracking-[0.2em] text-paper/35">
+      {/* Fragment marquee */}
+      <Marquee items={MARQUEE} />
+
+      {/* The instrument */}
+      <section className="grid grid-cols-1 gap-10 px-5 py-20 sm:px-8 md:grid-cols-12 md:px-12 md:py-28">
+        <div className="md:col-span-3">
+          <Label index="→">your week</Label>
+          <p className="mt-4 font-body text-sm leading-relaxed text-paper/45">
+            However messy. Paste it, drop a file, or a photo of your notebook.
+            Nothing is stored.
+          </p>
+        </div>
+
+        <div className="md:col-span-9">
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDrag(true);
+            }}
+            onDragLeave={() => setDrag(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDrag(false);
+              const file = e.dataTransfer.files?.[0];
+              if (file) ingestFile(file);
+            }}
+            className={`relative border ${drag ? "border-accent" : "border-paper/18"} transition-colors`}
+          >
+            <div className="flex items-center justify-between border-b border-paper/12 px-4 py-2.5">
+              <span className="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-paper/45">
+                input / paste below
+              </span>
+              <span className="font-mono text-[0.68rem] tabular-nums text-paper/35">
+                {count} chars
+              </span>
+            </div>
+            <textarea
+              ref={areaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={"MON. woke at 6:40, could not get back down.\ncalendar: 09:00 standup / 14:00 the call I keep moving.\njournal: told myself I would finally send it. did not."}
+              rows={8}
+              spellCheck={false}
+              className="w-full resize-y bg-transparent px-4 py-4 font-mono text-sm leading-relaxed text-paper placeholder:text-paper/25 focus:outline-none"
+            />
+            {drag ? (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-ink/75 font-mono text-sm uppercase tracking-[0.25em] text-accent">
+                drop it. Arc will read it
+              </div>
+            ) : null}
+            <div className="flex items-center justify-between border-t border-paper/12 px-4 py-2.5">
               <button
                 onClick={() => fileRef.current?.click()}
                 disabled={busy}
-                className="underline-offset-4 transition-colors hover:text-paper"
+                className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-paper/45 underline-offset-4 transition-colors hover:text-paper"
                 data-cursor="hover"
               >
-                choose a file
+                + file or photo
               </button>
-              <span>drop a .txt · .md · .ics · .json — or a photo of your notebook</span>
+              <span className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-paper/30">
+                .txt .md .ics .json .jpg
+              </span>
               <input
                 ref={fileRef}
                 type="file"
@@ -212,115 +276,123 @@ export default function Home() {
                 }}
               />
             </div>
+          </div>
 
-            {image ? (
-              <div className="mt-4 flex items-center gap-3 border border-accent/40 bg-accent/[0.06] px-3 py-2">
-                <span className="font-body text-xs uppercase tracking-[0.2em] text-accent">
-                  photo attached
-                </span>
-                <span className="truncate font-body text-sm text-paper/70">{image.name}</span>
-                <button
-                  onClick={() => setImage(null)}
-                  className="ml-auto font-body text-xs uppercase tracking-[0.2em] text-paper/50 hover:text-paper"
-                  data-cursor="hover"
-                  aria-label="Remove photo"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : null}
-
-            <div className="mt-8">
+          {image ? (
+            <div className="mt-3 flex items-center gap-3 border border-accent/40 bg-accent/[0.06] px-3 py-2">
+              <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-accent">
+                photo attached
+              </span>
+              <span className="truncate font-mono text-xs text-paper/70">{image.name}</span>
               <button
-                onClick={build}
-                disabled={busy}
-                className="group relative inline-flex items-center gap-3 bg-accent px-7 py-3 font-body text-sm font-medium uppercase tracking-[0.2em] text-ink transition-transform duration-500 ease-arc hover:-translate-y-0.5 disabled:opacity-50"
+                onClick={() => setImage(null)}
+                className="ml-auto font-mono text-xs text-paper/50 hover:text-paper"
+                data-cursor="hover"
+                aria-label="Remove photo"
               >
-                Build my site
-                <span aria-hidden className="transition-transform duration-500 ease-arc group-hover:translate-x-1">
-                  →
-                </span>
+                remove
               </button>
             </div>
+          ) : null}
 
-            <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="font-body text-xs uppercase tracking-[0.25em] text-paper/35">
-                or paste a prepared week
+          <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <button
+              onClick={build}
+              disabled={busy}
+              className="group inline-flex items-center gap-4 bg-accent px-8 py-4 font-mono text-xs font-bold uppercase tracking-[0.22em] text-ink transition-transform duration-500 ease-arc hover:-translate-y-0.5 disabled:opacity-50"
+              data-cursor="hover"
+            >
+              Build my site
+              <span aria-hidden className="transition-transform duration-500 ease-arc group-hover:translate-x-1">
+                →
               </span>
-              {DEMO_WEEKS.map((week) => (
+            </button>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <span className="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-paper/35">
+                or load
+              </span>
+              {DEMO_WEEKS.map((week, i) => (
                 <button
                   key={week.id}
                   onClick={() => {
                     setInput(week.input);
+                    setImage(null);
                     setError(null);
                     areaRef.current?.focus();
                   }}
                   disabled={busy}
-                  className="border border-paper/20 px-3 py-1.5 font-body text-xs uppercase tracking-[0.15em] text-paper/60 transition-colors hover:border-accent hover:text-paper disabled:opacity-50"
+                  className="group inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-paper/55 transition-colors hover:text-paper disabled:opacity-50"
                   data-cursor="hover"
                 >
-                  {week.label}
+                  <span className="text-accent/70">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="border-b border-transparent group-hover:border-accent">
+                    {week.label}
+                  </span>
                 </button>
               ))}
             </div>
+          </div>
 
-            {error ? (
-              <p className="mt-5 font-body text-sm text-accent">{error}</p>
-            ) : null}
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Example gallery — three finished weeks, one tap away. */}
-      <section className="border-t border-paper/10 px-6 py-24 sm:px-10 md:px-16">
-        <p className="font-body text-xs uppercase tracking-[0.35em] text-paper/40">
-          three weeks Arc has already read
-        </p>
-        <div className="mt-10 grid grid-cols-1 gap-px overflow-hidden border border-paper/10 md:grid-cols-3">
-          {DEMO_WEEKS.map((week) => {
-            const accent = ACCENTS[week.narrative.tone];
-            return (
-              <button
-                key={week.id}
-                onClick={() => openExample(week)}
-                data-cursor="hover"
-                className="group relative flex flex-col justify-between gap-10 bg-ink p-8 text-left outline outline-1 outline-paper/10 transition-colors hover:bg-paper/[0.03] md:p-10"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-xs uppercase tracking-[0.25em] text-paper/40">
-                    {week.label}
-                  </span>
-                  <span
-                    className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: `rgb(${accent.accent})` }}
-                  />
-                </div>
-                <div>
-                  <h3 className="font-display text-2xl font-light leading-tight tracking-tight">
-                    {week.narrative.title}
-                  </h3>
-                  <p className="mt-4 font-body text-sm leading-relaxed text-paper/50">
-                    {week.narrative.throughLine}
-                  </p>
-                  <span className="mt-6 inline-flex items-center gap-2 font-body text-xs uppercase tracking-[0.2em] text-paper/60 transition-colors group-hover:text-paper">
-                    read the site
-                    <span aria-hidden className="transition-transform duration-500 ease-arc group-hover:translate-x-1">
-                      →
-                    </span>
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+          {error ? (
+            <p className="mt-5 font-mono text-sm text-accent">{error}</p>
+          ) : null}
         </div>
       </section>
 
-      <footer className="flex items-center justify-between px-6 py-8 font-body text-xs uppercase tracking-[0.25em] text-paper/35 sm:px-10 md:px-16">
-        <span>GPT-5.6 reads · the engine builds</span>
-        <span>nothing is stored</span>
+      {/* Selected readings: an editorial contents index, not cards */}
+      <section className="border-t border-paper/12 px-5 py-20 sm:px-8 md:px-12 md:py-28">
+        <div className="flex items-baseline justify-between">
+          <Label>selected readings</Label>
+          <span className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-paper/35">
+            three weeks, already read
+          </span>
+        </div>
+
+        <ul className="mt-10">
+          {DEMO_WEEKS.map((week, i) => {
+            const accent = ACCENTS[week.narrative.tone];
+            return (
+              <li key={week.id}>
+                <button
+                  onClick={() => openExample(week)}
+                  data-cursor="hover"
+                  className="group grid w-full grid-cols-12 items-center gap-4 border-t border-paper/12 py-7 text-left transition-colors last:border-b hover:bg-paper/[0.02]"
+                >
+                  <span className="col-span-2 font-mono text-sm text-accent/70 sm:col-span-1">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="col-span-10 font-display text-[clamp(1.6rem,4vw,3rem)] font-light leading-none tracking-tight transition-transform duration-500 ease-arc group-hover:translate-x-2 sm:col-span-6">
+                    {week.narrative.title}
+                  </span>
+                  <span className="col-span-8 col-start-3 font-body text-sm leading-snug text-paper/45 sm:col-span-4 sm:col-start-auto">
+                    {week.narrative.throughLine}
+                  </span>
+                  <span className="col-span-4 col-start-9 flex items-center justify-end gap-3 sm:col-span-1">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: `rgb(${accent.accent})` }}
+                    />
+                    <span aria-hidden className="font-mono text-paper/50 transition-transform duration-500 ease-arc group-hover:translate-x-1">
+                      →
+                    </span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* Colophon */}
+      <footer className="grid grid-cols-2 gap-4 border-t border-paper/12 px-5 py-10 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-paper/40 sm:px-8 md:grid-cols-4 md:px-12">
+        <span>Arc</span>
+        <span>GPT-5.6 reads</span>
+        <span>the engine builds</span>
+        <span className="md:text-right">nothing is stored</span>
       </footer>
 
-      {/* The reading room — the through-line and beats assemble live. */}
+      {/* The reading room: the through-line and beats assemble live */}
       <AnimatePresence>
         {busy ? (
           <motion.div
@@ -328,35 +400,38 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-ink px-6"
+            className="fixed inset-0 z-50 flex flex-col justify-center bg-ink px-5 sm:px-8 md:px-12"
             style={{ "--accent": streamAccent } as React.CSSProperties}
           >
-            <div className="w-full max-w-xl">
-              <div className="h-px w-full overflow-hidden bg-paper/15">
-                <motion.div
-                  className="h-full bg-accent"
-                  animate={{ width: `${Math.min(96, 10 + streamBeats.length * 12)}%` }}
-                  transition={{ duration: 0.6, ease: EASE }}
-                />
+            <div className="w-full max-w-3xl">
+              <div className="mb-8 flex items-center gap-4">
+                <span className="font-mono text-[0.7rem] uppercase tracking-[0.28em] text-accent">
+                  reading
+                </span>
+                <div className="h-px flex-1 overflow-hidden bg-paper/15">
+                  <motion.div
+                    className="h-full bg-accent"
+                    animate={{ width: `${Math.min(96, 10 + streamBeats.length * 12)}%` }}
+                    transition={{ duration: 0.6, ease: EASE }}
+                  />
+                </div>
               </div>
 
-              <div className="mt-10 min-h-[3rem]">
+              <div className="min-h-[3rem]">
                 {head ? (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: EASE }}
                   >
-                    <p className="font-body text-xs uppercase tracking-[0.35em] text-accent">
-                      what your week was about
-                    </p>
-                    <p className="mt-4 font-display text-[clamp(1.3rem,2.6vw,1.9rem)] font-light leading-snug tracking-tight text-paper">
+                    <Label>what your week was about</Label>
+                    <p className="mt-4 font-display text-[clamp(1.5rem,3.4vw,2.4rem)] font-light leading-snug tracking-tight text-paper">
                       {head.throughLine}
                     </p>
                   </motion.div>
                 ) : (
-                  <p className="font-display text-lg font-light tracking-tight text-paper/70">
-                    Reading your week…
+                  <p className="font-display text-xl font-light tracking-tight text-paper/70">
+                    Reading your week.
                   </p>
                 )}
               </div>
@@ -370,9 +445,9 @@ export default function Home() {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5, ease: EASE }}
-                        className="flex items-baseline gap-3 font-body text-sm text-paper/55"
+                        className="flex items-baseline gap-4 font-body text-sm text-paper/55"
                       >
-                        <span className="w-24 shrink-0 truncate text-[0.65rem] uppercase tracking-[0.2em] text-accent">
+                        <span className="w-28 shrink-0 truncate font-mono text-[0.64rem] uppercase tracking-[0.16em] text-accent">
                           {b.kicker || b.kind.replace("-", " ")}
                         </span>
                         <span className="truncate">{b.headline}</span>

@@ -62,7 +62,7 @@ export async function analyzeWeek(input: string, image?: string): Promise<Narrat
                 type: "input_text",
                 text: buildUserInput(
                   input.trim() ||
-                    "My week is in the attached image — a journal page, a whiteboard, or my notes. Read it and find the shape.",
+                    "My week is in the attached image: a journal page, a whiteboard, or my notes. Read it and find the shape.",
                 ),
               },
               { type: "input_image", image_url: image, detail: "auto" },

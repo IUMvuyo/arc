@@ -6,15 +6,15 @@ export interface DemoWeek {
   label: string;
   /** The messy raw input a user would paste. */
   input: string;
-  /** The reliable baked reading — used as the demo-safe fallback. */
+  /** The reliable baked reading, used as the demo-safe fallback. */
   narrative: Narrative;
   /** Distinctive substrings that identify this week in a pasted input. */
   signatures: string[];
 }
 
-// ── Week 1 — a week of avoidance (reflective · dusk · ink) ──────────────────
+// Week 1: a week of avoidance (reflective / dusk / ink)
 const REFLECTIVE_INPUT = `MON 10 Mar
-06:40 — awake before the alarm again, couldn't get back down.
+06:40 awake before the alarm again, couldn't get back down.
 calendar: 09:00 standup / 11:00 investor update (moved, again) / 14:00 1:1 Thabo / 19:30 gym (skipped)
 journal: told myself I'd call mom this weekend and didn't. she replied "ok" to my last message which means she is not ok.
 shipped the export bug fix. 3 days late. nobody noticed it was late, which somehow feels worse.
@@ -26,13 +26,13 @@ goals doc (untouched since Feb): 1) ship v2  2) hire a second eng  3) actually r
 ate lunch at the desk again. six days straight now.
 
 WED 12 Mar
-07:00 gym — went. first time in two weeks.
-13:00 lunch w/ Sipho — cancelled by me. "too much on." then spent that hour refreshing analytics.
+07:00 gym, went. first time in two weeks.
+13:00 lunch w/ Sipho, cancelled by me. "too much on." then spent that hour refreshing analytics.
 the investor update is four days overdue. every day I don't send it, it gets heavier.
 
 THU 13 Mar
-09:15 — finally sent the investor update. it took 40 minutes. it had been sitting on me for a week.
-14:00 — called mom. wasn't planning to. saw her name and just did it before I could talk myself out of it. talked for an hour. she's fine. I was the one who wasn't.
+09:15 finally sent the investor update. it took 40 minutes. it had been sitting on me for a week.
+14:00 called mom. wasn't planning to. saw her name and just did it before I could talk myself out of it. talked for an hour. she's fine. I was the one who wasn't.
 journal: the two things I was most avoiding took a hundred minutes combined. I gave them a week of dread each.
 
 FRI 14 Mar
@@ -71,11 +71,11 @@ const REFLECTIVE_NARRATIVE: Narrative = {
       headline: "This is what the week was actually made of.",
       body: "",
       fragments: [
-        "06:40 — awake before the alarm, again",
+        "06:40 awake before the alarm, again",
         "1am: “it's not the email. i know it's not the email.”",
-        "lunch w/ Sipho — cancelled by me",
-        "goals doc — untouched since Feb",
-        "the investor update — 4 days overdue, then 5, then 6",
+        "lunch w/ Sipho, cancelled by me",
+        "goals doc, untouched since Feb",
+        "the investor update, 4 days overdue, then 5, then 6",
         "six lunches at the desk",
       ],
       intensity: 0.52,
@@ -92,7 +92,7 @@ const REFLECTIVE_NARRATIVE: Narrative = {
       kind: "observation",
       kicker: "the honest part",
       headline:
-        "Refreshing analytics during the hour you cancelled on a friend — the honesty of that isn't lost on you.",
+        "You spent the hour you cancelled on a friend refreshing analytics. The honesty of that isn't lost on you.",
       body: "You weren't out of time. You were avoiding, and staying busy was the disguise.",
       fragments: [],
       intensity: 0.58,
@@ -124,14 +124,14 @@ const REFLECTIVE_NARRATIVE: Narrative = {
   ],
 };
 
-// ── Week 2 — a launch week (high-energy · coral · ink) ──────────────────────
+// Week 2: a launch week (high-energy / coral / ink)
 const ENERGY_INPUT = `MON 17 Mar
-02:14 — v2 is live. pushed it myself, hands shaking a bit from the coffee.
+02:14 v2 is live. pushed it myself, hands shaking a bit from the coffee.
 calendar: 09:00 standup / 10:00-17:00 back-to-back demos / 19:00 dinner (moved to the desk)
 journal: shipped the thing we've been talking about for four months. it works. why do I feel nothing.
 
 TUE 18 Mar
-Product Hunt launch — #2 of the day by noon. refreshed it maybe 200 times.
+Product Hunt launch, #2 of the day by noon. refreshed it maybe 200 times.
 calendar: 5 investor calls stacked. one soft yes. three "keep us posted".
 voice note: "everyone keeps saying congrats and I keep saying 'we're just getting started' like a robot."
 
@@ -140,7 +140,7 @@ WED 19 Mar
 the second-engineer decision has been open three weeks. I keep re-reading the same two CVs.
 
 THU 20 Mar
-18:40 — sent the offer. she said yes within the hour.
+18:40 sent the offer. she said yes within the hour.
 journal: for the first time since we started, this isn't only mine to carry. I didn't know how heavy it was until it got a little lighter.
 
 FRI 21 Mar
@@ -157,7 +157,7 @@ const ENERGY_NARRATIVE: Narrative = {
   beats: [
     {
       kind: "opening",
-      headline: "You shipped more this week than most months — and almost none of it is what you'll remember.",
+      headline: "You shipped more this week than most months, and almost none of it is what you'll remember.",
       body: "",
       fragments: [],
       kicker: "",
@@ -177,11 +177,11 @@ const ENERGY_NARRATIVE: Narrative = {
       headline: "This is what the week clocked in as.",
       body: "",
       fragments: [
-        "02:14 — v2 live, hands shaking a bit",
-        "Product Hunt — #2 of the day by noon",
+        "02:14 v2 live, hands shaking a bit",
+        "Product Hunt, #2 of the day by noon",
         "5 investor calls, one soft yes",
-        "Thu 18:40 — the offer, sent",
-        "Fri — 4 hours' sleep, still buzzing",
+        "Thu 18:40, the offer, sent",
+        "Fri, 4 hours' sleep, still buzzing",
       ],
       intensity: 0.62,
     },
@@ -189,7 +189,7 @@ const ENERGY_NARRATIVE: Narrative = {
       kind: "observation",
       kicker: "the honest part",
       headline: "Momentum is the easiest thing to mistake for progress.",
-      body: "Most of what you shipped this week, you'll have forgotten by June. That's not failure — it's just not the point.",
+      body: "Most of what you shipped this week, you'll have forgotten by June. That's not failure. It's just not the point.",
       fragments: [],
       intensity: 0.5,
     },
@@ -220,13 +220,13 @@ const ENERGY_NARRATIVE: Narrative = {
   ],
 };
 
-// ── Week 3 — a quiet beginning (growth · moss · paper) ──────────────────────
+// Week 3: a quiet beginning (growth / moss / paper)
 const GROWTH_INPUT = `MON 24 Mar
 the running shoes have been by the door since January. stepped over them again.
 journal: I keep saying "next week" like it's a real plan. it's been next week for two months.
 
 TUE 25 Mar
-06:10 — laced up before I could argue with myself. went out the door.
+06:10 laced up before I could argue with myself. went out the door.
 2.1km. walked half of it. lungs on fire. booked the next one before this one even ended.
 journal: it was so much smaller than the dread. the dread was months. the run was nineteen minutes.
 
@@ -245,7 +245,7 @@ const GROWTH_NARRATIVE: Narrative = {
   period: "the week of 24 March",
   tone: "growth",
   throughLine:
-    "After months of meaning to, you started — and the starting was smaller and quieter than the dread had promised.",
+    "After months of meaning to, you started, and the starting was smaller and quieter than the dread had promised.",
   meta: { source: "cache" },
   beats: [
     {
@@ -271,8 +271,8 @@ const GROWTH_NARRATIVE: Narrative = {
       body: "",
       fragments: [
         "the shoes by the door since January",
-        "“next week” — for two months",
-        "Tue 06:10 — laced up anyway",
+        "“next week”, for two months",
+        "Tue 06:10, laced up anyway",
         "2.1km, walked half of it",
         "booked the next one before this one ended",
       ],
@@ -290,7 +290,7 @@ const GROWTH_NARRATIVE: Narrative = {
       kind: "turning-point",
       kicker: "Tuesday, 06:10",
       headline: "You laced up and went out the door before the part of you that argues woke up.",
-      body: "2.1km. You walked half of it. It was so much smaller than the dread — the dread was months, the run was nineteen minutes.",
+      body: "2.1km. You walked half of it. It was so much smaller than the dread. The dread was months. The run was nineteen minutes.",
       fragments: [],
       intensity: 0.9,
     },

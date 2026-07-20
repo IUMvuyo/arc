@@ -51,7 +51,11 @@ function cleanLines(text: string): string[] {
 }
 
 function shorten(line: string, max = 96): string {
-  const stripped = line.replace(/^[-*•\d.\)\s]+/, "").trim();
+  const stripped = line
+    // Normalize any em/en dashes in passed-through input to clean punctuation.
+    .replace(/\s*[—–]\s*/g, ", ")
+    .replace(/^[-*•\d.\)\s]+/, "")
+    .trim();
   return stripped.length > max ? stripped.slice(0, max - 1).trimEnd() + "…" : stripped;
 }
 

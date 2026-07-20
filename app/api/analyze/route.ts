@@ -1,21 +1,28 @@
 import { NextResponse } from "next/server";
-import { analyzeWeek, inputError } from "@/lib/analyze";
+import { analyzeWeek, inputError, AnalyzeError } from "@/lib/analyze";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
   let input = "";
+  let image: string | undefined;
   try {
     const body = await req.json();
     input = typeof body?.input === "string" ? body.input : "";
+    image = typeof body?.image === "string" ? body.image : undefined;
   } catch {
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
 
-  const bad = inputError(input);
+  const bad = inputError(input, !!image);
   if (bad) return NextResponse.json({ error: bad }, { status: 422 });
 
-  const narrative = await analyzeWeek(input);
-  return NextResponse.json({ narrative });
+  try {
+    const narrative = await analyzeWeek(input, image);
+    return NextResponse.json({ narrative });
+  } catch (err) {
+    const message = err instanceof AnalyzeError ? err.message : "Arc couldn't read that.";
+    return NextResponse.json({ error: message }, { status: 422 });
+  }
 }

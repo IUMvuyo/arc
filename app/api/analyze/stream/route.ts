@@ -1,4 +1,4 @@
-import { analyzeWeek, inputError } from "@/lib/analyze";
+import { analyzeWeek, inputError, AnalyzeError } from "@/lib/analyze";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -11,14 +11,16 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // same whether the reading came from the model or the demo-safe fallback.
 export async function POST(req: Request) {
   let input = "";
+  let image: string | undefined;
   try {
     const body = await req.json();
     input = typeof body?.input === "string" ? body.input : "";
+    image = typeof body?.image === "string" ? body.image : undefined;
   } catch {
     return new Response("Bad request", { status: 400 });
   }
 
-  const bad = inputError(input);
+  const bad = inputError(input, !!image);
   if (bad) return new Response(bad, { status: 422 });
 
   const encoder = new TextEncoder();
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
 
       try {
-        const narrative = await analyzeWeek(input);
+        const narrative = await analyzeWeek(input, image);
 
         send({
           type: "through-line",
@@ -52,8 +54,10 @@ export async function POST(req: Request) {
         await sleep(200);
         send({ type: "narrative", value: narrative });
         send({ type: "done" });
-      } catch {
-        send({ type: "error", value: "Arc couldn't read that. Try again." });
+      } catch (err) {
+        const message =
+          err instanceof AnalyzeError ? err.message : "Arc couldn't read that. Try again.";
+        send({ type: "error", value: message });
       } finally {
         controller.close();
       }

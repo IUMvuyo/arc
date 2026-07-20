@@ -20,13 +20,30 @@ export default function Home() {
   const [streamBeats, setStreamBeats] = useState<StreamBeat[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
+  const [image, setImage] = useState<{ data: string; name: string } | null>(null);
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  function readImage(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function ingestFile(file: File) {
     try {
+      if (file.type.startsWith("image/")) {
+        // A photo of a journal page / whiteboard — GPT-5.6 vision reads it.
+        setImage({ data: await readImage(file), name: file.name });
+        setError(null);
+        return;
+      }
       const text = await file.text();
       setInput(normalizeUpload(file.name, text));
+      setImage(null);
       setError(null);
       areaRef.current?.focus();
     } catch {
@@ -35,8 +52,8 @@ export default function Home() {
   }
 
   async function build() {
-    if (input.trim().length < 40) {
-      setError("Give Arc a bit more of your week to read — a few days of notes.");
+    if (!image && input.trim().length < 40) {
+      setError("Give Arc a bit more of your week to read — a few days of notes, or a photo.");
       areaRef.current?.focus();
       return;
     }
@@ -49,7 +66,7 @@ export default function Home() {
       const res = await fetch("/api/analyze/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({ input, image: image?.data }),
       });
       if (!res.ok || !res.body) {
         throw new Error((await res.text()) || "Arc couldn't read that. Try again.");
@@ -182,11 +199,11 @@ export default function Home() {
               >
                 choose a file
               </button>
-              <span>or drop a .txt · .md · .ics · .json — parsed on your device</span>
+              <span>drop a .txt · .md · .ics · .json — or a photo of your notebook</span>
               <input
                 ref={fileRef}
                 type="file"
-                accept=".txt,.md,.ics,.json,.markdown,text/plain"
+                accept=".txt,.md,.ics,.json,.markdown,text/plain,image/*"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -195,6 +212,23 @@ export default function Home() {
                 }}
               />
             </div>
+
+            {image ? (
+              <div className="mt-4 flex items-center gap-3 border border-accent/40 bg-accent/[0.06] px-3 py-2">
+                <span className="font-body text-xs uppercase tracking-[0.2em] text-accent">
+                  photo attached
+                </span>
+                <span className="truncate font-body text-sm text-paper/70">{image.name}</span>
+                <button
+                  onClick={() => setImage(null)}
+                  className="ml-auto font-body text-xs uppercase tracking-[0.2em] text-paper/50 hover:text-paper"
+                  data-cursor="hover"
+                  aria-label="Remove photo"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : null}
 
             <div className="mt-8">
               <button

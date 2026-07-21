@@ -4,26 +4,26 @@
 export type Tone = "high-energy" | "reflective" | "growth" | "grounded";
 
 // The section-type system. Codex assembles a site by ordering these.
-// Exactly one beat in a story is the `turning-point` — it earns the one big motion moment.
+// Exactly one beat in a story is the `turning-point`, it earns the one big motion moment.
 export type BeatKind =
-  | "opening" // the opening statement — one true sentence about the week
+  | "opening" // the opening statement, one true sentence about the week
   | "theme" // a recurring thread that ran through the days
-  | "texture" // data-as-texture — the raw material, rendered as atmosphere not a chart
-  | "pull-line" // a single towering line — a realization held alone, full-bleed
-  | "diptych" // two statements in tension — what you said vs what you did
-  | "turning-point" // the moment the week changed — the hard visual break
+  | "texture" // data-as-texture, the raw material, rendered as atmosphere not a chart
+  | "pull-line" // a single towering line, a realization held alone, full-bleed
+  | "diptych" // two statements in tension, what you said vs what you did
+  | "turning-point" // the moment the week changed, the hard visual break
   | "observation" // one honest, non-generic thing that is true
   | "closing"; // the closing line
 
 export interface Beat {
   kind: BeatKind;
-  /** Large display text — the thing you read first in this section. */
+  /** Large display text, the thing you read first in this section. */
   headline: string;
   /** Supporting prose. Quiet, never padded. Optional for texture/closing. */
   body?: string;
   /**
    * For `texture` beats: short fragments lifted from the raw input, shown as texture.
-   * For `diptych` beats: exactly two entries — the left and right sides of the tension.
+   * For `diptych` beats: exactly two entries, the left and right sides of the tension.
    */
   fragments?: string[];
   /** A small label above the headline (e.g. "Tuesday", "the through-line"). Optional. */
@@ -33,9 +33,9 @@ export interface Beat {
 }
 
 export interface Narrative {
-  /** Short, evocative, drawn from the actual week — never "Your Week in Review". */
+  /** Short, evocative, drawn from the actual week, never "Your Week in Review". */
   title: string;
-  /** e.g. "the week of 10 March" — whatever period the input covers. */
+  /** e.g. "the week of 10 March", whatever period the input covers. */
   period: string;
   /** Chooses the accent pair + canvas. */
   tone: Tone;
@@ -54,9 +54,9 @@ export type Canvas = "ink" | "paper";
 
 export interface AccentPair {
   tone: Tone;
-  /** Human name, shown nowhere in the UI — used in dev/docs only. */
+  /** Human name, shown nowhere in the UI, used in dev/docs only. */
   name: string;
-  /** "R G B" — consumed as rgb(var(--accent)). */
+  /** "R G B", consumed as rgb(var(--accent)). */
   accent: string;
   /** Muted companion for hairlines, kickers, secondary marks. */
   accentSoft: string;

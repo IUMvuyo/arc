@@ -2,7 +2,7 @@ import type { Beat, Narrative, Tone } from "./types";
 
 // A local, dependency-free reading of the input. Not as sharp as GPT-5.6, but it
 // keeps Arc honest offline: any pasted week still yields a coherent, non-crashing
-// narrative instead of an error. It never invents facts — every line it shows is
+// narrative instead of an error. It never invents facts. Every line it shows is
 // lifted from the input.
 
 const TONE_SIGNALS: Record<Tone, string[]> = {
@@ -69,7 +69,7 @@ export function heuristicNarrative(input: string): Narrative {
   const lines = cleanLines(input);
   const tone = scoreTone(input);
 
-  // The turning point: the line that most sounds like a decision or an act —
+  // The turning point: the line that most sounds like a decision or an act,
   // never the opening line, so the arc actually moves somewhere.
   const interior = lines.slice(1);
   let turnLine =
@@ -78,7 +78,7 @@ export function heuristicNarrative(input: string): Narrative {
     lines[Math.floor(lines.length / 2)] ??
     "Something shifted.";
 
-  // Texture: short, concrete fragments — times, phrases, counts.
+  // Texture: short, concrete fragments like times, phrases, counts.
   const fragments = lines
     .filter((l) => l !== turnLine && l.length <= 90 && /[0-9:]|"|“|—/.test(l))
     .slice(0, 6)

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, Space_Mono } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import "./globals.css";
@@ -49,6 +49,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: ["/api/og"],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0E0E10",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

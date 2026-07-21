@@ -2,10 +2,12 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { DEMO_WEEKS, type DemoWeek } from "@/lib/demo";
 import { normalizeUpload } from "@/lib/ingest";
 import { ACCENTS } from "@/lib/palette";
+import { encodeNarrative } from "@/lib/share";
 import { Marquee } from "@/components/Marquee";
 import { Label } from "@/components/Label";
 import type { Narrative, Tone } from "@/lib/types";
@@ -135,10 +137,15 @@ export default function Home() {
     }
   }
 
-  function openExample(week: DemoWeek) {
-    sessionStorage.setItem("arc:narrative", JSON.stringify(week.narrative));
-    sessionStorage.setItem("arc:input", week.input);
-    router.push("/story");
+  // The example cards are real permalinks (?s=). We also prime sessionStorage so
+  // the story reads instantly and remembers the source input for a re-read.
+  function cacheExample(week: DemoWeek) {
+    try {
+      sessionStorage.setItem("arc:narrative", JSON.stringify(week.narrative));
+      sessionStorage.setItem("arc:input", week.input);
+    } catch {
+      /* private mode: the ?s= link still works on its own */
+    }
   }
 
   const streamAccent = head ? ACCENTS[head.tone].accent : "74 107 138";
@@ -354,8 +361,9 @@ export default function Home() {
             const accent = ACCENTS[week.narrative.tone];
             return (
               <li key={week.id}>
-                <button
-                  onClick={() => openExample(week)}
+                <Link
+                  href={`/story?s=${encodeNarrative(week.narrative)}`}
+                  onClick={() => cacheExample(week)}
                   data-cursor="hover"
                   className="group grid w-full grid-cols-12 items-center gap-4 border-t border-paper/12 py-7 text-left transition-colors last:border-b hover:bg-paper/[0.02]"
                 >
@@ -377,7 +385,7 @@ export default function Home() {
                       →
                     </span>
                   </span>
-                </button>
+                </Link>
               </li>
             );
           })}

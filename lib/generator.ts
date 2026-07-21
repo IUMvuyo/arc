@@ -6,8 +6,8 @@ const clamp01 = (n: number): number =>
 
 // Normalize whatever the analysis pass returned into a story the renderer can
 // trust: a clean opening, exactly one turning point, a closing line, and a
-// detected shape that drives the page rhythm. This is the constraint system —
-// tight rules, loose content — so a generated site is never structurally broken.
+// detected shape that drives the page rhythm. This is the constraint system
+// tight rules, loose content, so a generated site is never structurally broken.
 export function generateStory(raw: Narrative): GeneratedStory {
   const tone = raw.tone ?? "reflective";
   const accent = accentFor(tone);
@@ -36,7 +36,7 @@ export function generateStory(raw: Narrative): GeneratedStory {
 
   // Guarantee exactly one turning point. If the model marked none, promote the
   // most intense interior beat. If it marked several, keep the strongest and
-  // demote the rest to themes — the one big moment stays singular by design.
+  // demote the rest to themes, the one big moment stays singular by design.
   const turningIdxs = beats
     .map((b, i) => (b.kind === "turning-point" ? i : -1))
     .filter((i) => i > 0 && i < beats.length - 1);
@@ -52,7 +52,7 @@ export function generateStory(raw: Narrative): GeneratedStory {
       if (i !== turningPointIndex) beats[i] = { ...beats[i], kind: "theme" };
     }
   } else {
-    // No turning point declared — find the loudest interior beat and make it one.
+    // No turning point declared, find the loudest interior beat and make it one.
     let best = 1;
     for (let i = 1; i < beats.length - 1; i++) {
       if (beats[i].intensity >= beats[best].intensity) best = i;
@@ -61,7 +61,7 @@ export function generateStory(raw: Narrative): GeneratedStory {
     beats[turningPointIndex] = { ...beats[turningPointIndex], kind: "turning-point" };
   }
 
-  // The turning point is always the peak — lift it above its neighbours so the
+  // The turning point is always the peak, lift it above its neighbours so the
   // kinetic-type moment has real contrast to animate through.
   beats[turningPointIndex] = {
     ...beats[turningPointIndex],

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 // A subtle custom cursor: a small radius glow that follows the pointer and
-// quietly grows over interactive elements. The native cursor is kept — this is
+// quietly grows over interactive elements. The native cursor is kept, this is
 // additive. Hidden on touch and for reduced-motion users (handled in CSS).
 export function Cursor() {
   const ref = useRef<HTMLDivElement>(null);

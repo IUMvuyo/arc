@@ -14,7 +14,7 @@ const KIND_LABEL: Record<BeatKind, string> = {
   closing: "the close",
 };
 
-// Scrollytelling nav — one dot per section, tracking the beat in view. Click to
+// Scrollytelling nav, one dot per section, tracking the beat in view. Click to
 // travel. Hidden on small screens and for reduced-motion users.
 export function NavDots({ story }: { story: GeneratedStory }) {
   const items = useMemo(() => {

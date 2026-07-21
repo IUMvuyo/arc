@@ -38,11 +38,11 @@ function parseNarrative(text: string | undefined, source: Narrative["meta"]): Na
 
 // The analysis pass with its full fallback chain: GPT-5.6 first, then the baked
 // reading for a prepared week, then a local heuristic so any TEXT input still
-// renders. An image can only be read by the model — there is no offline OCR.
+// renders. An image can only be read by the model, there is no offline OCR.
 export async function analyzeWeek(input: string, image?: string): Promise<Narrative> {
   const hasKey = !!process.env.OPENAI_API_KEY;
 
-  // Vision path — a photo of a journal page, whiteboard, or notes.
+  // Vision path, a photo of a journal page, whiteboard, or notes.
   if (image) {
     if (!hasKey) {
       throw new AnalyzeError(
@@ -79,7 +79,7 @@ export async function analyzeWeek(input: string, image?: string): Promise<Narrat
     }
   }
 
-  // Text path — model first, then demo-safe fallbacks.
+  // Text path, model first, then demo-safe fallbacks.
   if (hasKey) {
     try {
       const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

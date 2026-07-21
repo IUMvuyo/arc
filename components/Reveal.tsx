@@ -8,12 +8,12 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 type RevealVariant = "rise" | "unveil" | "settle" | "hold";
 
 const VARIANTS: Record<RevealVariant, Variants> = {
-  // Used sparingly — the plain translate-up.
+  // Used sparingly, the plain translate-up.
   rise: {
     hidden: { opacity: 0, y: 34 },
     show: { opacity: 1, y: 0, transition: { duration: 0.9, ease: EASE } },
   },
-  // A masked wipe from below — text unlocks rather than slides.
+  // A masked wipe from below, text unlocks rather than slides.
   unveil: {
     hidden: { opacity: 0, clipPath: "inset(0 0 100% 0)" },
     show: {
@@ -22,12 +22,12 @@ const VARIANTS: Record<RevealVariant, Variants> = {
       transition: { duration: 1.1, ease: EASE },
     },
   },
-  // Eases in from very slightly enlarged — a camera settling on its subject.
+  // Eases in from very slightly enlarged, a camera settling on its subject.
   settle: {
     hidden: { opacity: 0, scale: 1.035 },
     show: { opacity: 1, scale: 1, transition: { duration: 1.2, ease: EASE } },
   },
-  // Pure fade — for the quietest moments.
+  // Pure fade, for the quietest moments.
   hold: {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { duration: 1.4, ease: EASE } },
@@ -72,7 +72,7 @@ export function Reveal({
   );
 }
 
-// Word-by-word stagger for headlines — a distinct entrance from block reveals.
+// Word-by-word stagger for headlines, a distinct entrance from block reveals.
 export function RevealWords({
   text,
   className,

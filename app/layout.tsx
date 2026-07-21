@@ -27,7 +27,14 @@ const mono = Space_Mono({
   variable: "--font-mono",
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://arc-gold-beta.vercel.app");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Arc / a site built from your week",
   description:
     "Hand Arc a messy week of your own notes. It finds the real shape of it and builds you a one of a kind site that tells that story back.",
@@ -36,6 +43,11 @@ export const metadata: Metadata = {
     description:
       "GPT-5.6 reads your raw week and finds its real shape. The engine composes a bespoke, cinematic site that tells it back. Different every time.",
     type: "website",
+    images: [{ url: "/api/og", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/api/og"],
   },
 };
 

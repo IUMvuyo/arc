@@ -384,6 +384,40 @@ export default function Home() {
         </ul>
       </section>
 
+      {/* Method: the differentiator, stated plainly */}
+      <section className="border-t border-paper/12 px-5 py-20 sm:px-8 md:px-12 md:py-28">
+        <Label>how it works</Label>
+        <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+          {[
+            {
+              n: "01",
+              h: "It reads for the truth",
+              b: "GPT-5.6 reads your raw week and finds the real narrative: what recurred, what you avoided, the single moment it turned. Not a horoscope. If the week was mostly avoidance, it says so.",
+            },
+            {
+              n: "02",
+              h: "It composes, never templates",
+              b: "The engine composes the site from a constrained set of section types, ordered by the shape of your story. A flat week and a pivotal week get structurally different pages. The one big kinetic moment lands on the turn.",
+            },
+            {
+              n: "03",
+              h: "One site, never twice",
+              b: "The layout, the accent, the rhythm, the type in motion: all generated from your data at request time. Different every time, because every week actually is.",
+            },
+          ].map((c) => (
+            <div key={c.n} className="border-t border-paper/12 pt-6">
+              <span className="font-mono text-sm text-accent/70">{c.n}</span>
+              <h3 className="mt-4 font-display text-2xl font-light leading-tight tracking-tight">
+                {c.h}
+              </h3>
+              <p className="mt-4 font-body text-sm leading-relaxed text-paper/50">
+                {c.b}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Colophon */}
       <footer className="grid grid-cols-2 gap-4 border-t border-paper/12 px-5 py-10 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-paper/40 sm:px-8 md:grid-cols-4 md:px-12">
         <span>Arc</span>

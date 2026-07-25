@@ -122,3 +122,58 @@ test("no demo content contains an em or en dash", () => {
     }
   }
 });
+
+test("survives a degenerate reading (empty beats) without crashing", () => {
+  const s = generateStory({
+    title: "x",
+    period: "this week",
+    tone: "reflective",
+    throughLine: "a line",
+    beats: [],
+  });
+  assert.ok(s.narrative.beats.length >= 3);
+  assert.equal(s.narrative.beats[0].kind, "opening");
+  assert.equal(s.narrative.beats[s.narrative.beats.length - 1].kind, "closing");
+  assert.equal(
+    s.narrative.beats.filter((b) => b.kind === "turning-point").length,
+    1,
+  );
+  // The turning point is a genuine interior beat, never the opening/closing.
+  assert.ok(s.turningPointIndex > 0);
+  assert.ok(s.turningPointIndex < s.narrative.beats.length - 1);
+});
+
+test("coerces an off-spec tone to a valid accent", () => {
+  const s = generateStory({
+    title: "x",
+    period: "this week",
+    // A connected model returns a tone outside our four.
+    tone: "ecstatic" as never,
+    throughLine: "y",
+    beats: [
+      { kind: "opening", headline: "h", body: "", fragments: [], kicker: "", intensity: 0.3 },
+      { kind: "turning-point", headline: "t", body: "", fragments: [], kicker: "", intensity: 0.9 },
+      { kind: "closing", headline: "c", body: "", fragments: [], kicker: "", intensity: 0.4 },
+    ],
+  });
+  assert.equal(s.narrative.tone, "reflective");
+  assert.equal(s.accent.tone, "reflective");
+});
+
+test("coerces non-string headlines and bad intensities from a weak model", () => {
+  const s = generateStory({
+    title: "x",
+    period: "this week",
+    tone: "growth",
+    throughLine: "y",
+    beats: [
+      { kind: "opening", headline: 42 as never, body: "", fragments: [], kicker: "", intensity: "high" as never },
+      { kind: "theme", headline: "real line", body: "", fragments: [], kicker: "", intensity: 5 as never },
+      { kind: "closing", headline: "c", body: "", fragments: [], kicker: "", intensity: -3 as never },
+    ],
+  });
+  for (const b of s.narrative.beats) {
+    assert.equal(typeof b.headline, "string");
+    assert.ok(b.intensity >= 0 && b.intensity <= 1);
+  }
+});

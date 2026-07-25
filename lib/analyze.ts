@@ -1,12 +1,12 @@
-import OpenAI from "openai";
 import type { Narrative } from "./types";
-import { SYSTEM_PROMPT, NARRATIVE_SCHEMA, buildUserInput } from "./prompt";
+import type { AIConfig } from "./ai-config";
+import { isUsableConfig } from "./ai-config";
 import { matchDemo } from "./demo";
 import { heuristicNarrative } from "./heuristic";
+import { runProviderAnalysis, ProviderError } from "./providers";
 
 // Server-only. Do not import from a client component.
 
-export const ANALYZE_MODEL = process.env.OPENAI_MODEL || "gpt-5.6";
 export const MIN_INPUT = 40;
 
 /** A user-facing failure the route can surface verbatim. */
@@ -20,80 +20,59 @@ export function inputError(input: string, hasImage = false): string | null {
   return null;
 }
 
-const RESPONSE_FORMAT = {
-  format: {
-    type: "json_schema" as const,
-    name: "narrative",
-    strict: true,
-    schema: NARRATIVE_SCHEMA as unknown as Record<string, unknown>,
-  },
-};
-
-function parseNarrative(text: string | undefined, source: Narrative["meta"]): Narrative {
-  if (!text) throw new AnalyzeError("Arc couldn't read that. Try again.");
-  const parsed = JSON.parse(text) as Narrative;
-  parsed.meta = source;
-  return parsed;
+// The host's own OpenAI key, used when the visitor has not connected their own.
+function envConfig(): AIConfig | null {
+  if (!process.env.OPENAI_API_KEY) return null;
+  return {
+    provider: "openai",
+    apiKey: process.env.OPENAI_API_KEY,
+    model: process.env.OPENAI_MODEL || "gpt-5.6",
+  };
 }
 
-// The analysis pass with its full fallback chain: GPT-5.6 first, then the baked
-// reading for a prepared week, then a local heuristic so any TEXT input still
-// renders. An image can only be read by the model, there is no offline OCR.
-export async function analyzeWeek(input: string, image?: string): Promise<Narrative> {
-  const hasKey = !!process.env.OPENAI_API_KEY;
+// The analysis pass. Order:
+//   1. If the visitor connected their own AI, use it (surface any failure).
+//   2. Else if the host has a key configured, use it (fall back on failure).
+//   3. Else the demo-safe fallbacks: baked reading, then local heuristic.
+export async function analyzeWeek(
+  input: string,
+  image?: string,
+  config?: unknown,
+): Promise<Narrative> {
+  const byo = isUsableConfig(config) ? config : null;
 
-  // Vision path, a photo of a journal page, whiteboard, or notes.
-  if (image) {
-    if (!hasKey) {
+  if (byo) {
+    // The visitor explicitly connected an AI. Use it, and surface any error so
+    // they can fix their key, model, or endpoint rather than silently degrading.
+    try {
+      return await runProviderAnalysis(byo, input, image);
+    } catch (err) {
       throw new AnalyzeError(
-        "Arc reads photos with its GPT-5.6 connection, which isn't set up here. Paste the text instead, or try a prepared week.",
+        err instanceof ProviderError
+          ? err.message
+          : "Your connected AI could not read that. Check your key and model.",
       );
     }
-    try {
-      const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const response = await client.responses.create({
-        model: ANALYZE_MODEL,
-        instructions: SYSTEM_PROMPT,
-        input: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "input_text",
-                text: buildUserInput(
-                  input.trim() ||
-                    "My week is in the attached image: a journal page, a whiteboard, or my notes. Read it and find the shape.",
-                ),
-              },
-              { type: "input_image", image_url: image, detail: "auto" },
-            ],
-          },
-        ],
-        text: RESPONSE_FORMAT,
-      });
-      return parseNarrative(response.output_text, { source: "gpt-5.6" });
-    } catch (err) {
-      if (err instanceof AnalyzeError) throw err;
-      console.error("[arc] GPT-5.6 vision analysis failed:", err);
-      throw new AnalyzeError("Arc couldn't read that photo. Try a clearer shot, or paste the text.");
-    }
   }
 
-  // Text path, model first, then demo-safe fallbacks.
-  if (hasKey) {
+  const host = envConfig();
+  if (host) {
     try {
-      const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const response = await client.responses.create({
-        model: ANALYZE_MODEL,
-        instructions: SYSTEM_PROMPT,
-        input: buildUserInput(input),
-        text: RESPONSE_FORMAT,
-      });
-      const text = response.output_text;
-      if (text) return parseNarrative(text, { source: "gpt-5.6" });
+      return await runProviderAnalysis(host, input, image);
     } catch (err) {
-      console.error("[arc] GPT-5.6 analysis failed, falling back:", err);
+      console.error("[arc] host AI analysis failed, falling back:", err);
+      if (image) {
+        throw new AnalyzeError(
+          "Arc couldn't read that photo. Try a clearer shot, or paste the text.",
+        );
+      }
     }
+  } else if (image) {
+    throw new AnalyzeError(
+      "Reading a photo needs an AI connection. Connect your own AI, paste the text, or try a prepared week.",
+    );
   }
+
+  // Text-only demo-safe fallbacks.
   return matchDemo(input) ?? heuristicNarrative(input);
 }

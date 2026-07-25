@@ -36,10 +36,15 @@ Three things make it land in ninety seconds:
 
 ## What is in it
 
+- **Bring your own AI (plug and play).** Read your week with your own model. Connect
+  **OpenAI**, **Anthropic (Claude)**, or **any OpenAI-compatible endpoint** (Ollama,
+  Groq, OpenRouter, LM Studio, Together): pick a provider, paste a key, choose a
+  model. The key is stored only in your browser and sent to the server only to read
+  your week, never persisted or logged (`lib/ai-config.ts`, `lib/providers.ts`).
 - **Multimodal input.** Paste text, or drop or choose a file: a `.ics` calendar
   export (parsed into readable time ordered lines), `.json`, `.md`, `.txt`, or a
-  **photo of your notebook** that GPT-5.6 vision reads directly. Files are handled
-  on your device.
+  **photo of your notebook** that OpenAI or Claude vision reads directly. Files are
+  handled on your device.
 - **A live reading room.** A streaming endpoint sends the through-line first, then
   each beat as the reading assembles. You watch the model find the shape of your
   week in real time.
@@ -91,11 +96,12 @@ npm run dev                  # http://localhost:3000
 npm test                     # 20 unit tests
 ```
 
-**No key needed to demo.** Without `OPENAI_API_KEY`, Arc falls back to a baked
-reading of the prepared weeks (`lib/demo.ts`) and to a local heuristic reading
-(`lib/heuristic.ts`) for any other input, so a live demo never depends on the
-network. The story shows an honest badge: `read by gpt-5.6`, `demo reading`, or
-`local reading`.
+**No key needed to demo.** The analysis picks a source in this order: the AI the
+visitor connected in the browser, else the host's `OPENAI_API_KEY`, else a baked
+reading of the prepared weeks (`lib/demo.ts`), else a local heuristic reading
+(`lib/heuristic.ts`). So a live demo never depends on the network, and anyone can
+use it with their own key without the host configuring anything. The story shows an
+honest badge: `read by <model>`, `demo reading`, or `local reading`.
 
 Click any prepared week chip, or open a gallery card to jump straight into a
 finished site.

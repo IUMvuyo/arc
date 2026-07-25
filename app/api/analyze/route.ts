@@ -7,10 +7,12 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   let input = "";
   let image: string | undefined;
+  let config: unknown;
   try {
     const body = await req.json();
     input = typeof body?.input === "string" ? body.input : "";
     image = typeof body?.image === "string" ? body.image : undefined;
+    config = body?.config;
   } catch {
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
@@ -19,7 +21,7 @@ export async function POST(req: Request) {
   if (bad) return NextResponse.json({ error: bad }, { status: 422 });
 
   try {
-    const narrative = await analyzeWeek(input, image);
+    const narrative = await analyzeWeek(input, image, config);
     return NextResponse.json({ narrative });
   } catch (err) {
     const message = err instanceof AnalyzeError ? err.message : "Arc couldn't read that.";

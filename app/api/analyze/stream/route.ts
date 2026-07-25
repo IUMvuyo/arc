@@ -12,10 +12,12 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export async function POST(req: Request) {
   let input = "";
   let image: string | undefined;
+  let config: unknown;
   try {
     const body = await req.json();
     input = typeof body?.input === "string" ? body.input : "";
     image = typeof body?.image === "string" ? body.image : undefined;
+    config = body?.config;
   } catch {
     return new Response("Bad request", { status: 400 });
   }
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
 
       try {
-        const narrative = await analyzeWeek(input, image);
+        const narrative = await analyzeWeek(input, image, config);
 
         send({
           type: "through-line",

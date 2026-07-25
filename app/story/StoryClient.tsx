@@ -10,10 +10,15 @@ import { StoryRenderer } from "@/components/StoryRenderer";
 import { NavDots } from "@/components/NavDots";
 
 const SOURCE_LABEL: Record<string, string> = {
-  "gpt-5.6": "read by gpt-5.6",
   cache: "demo reading",
   heuristic: "local reading",
 };
+
+// Known non-model sources get a phrase; any model id renders as "read by <id>".
+function sourceLabel(source?: string): string {
+  if (!source) return "";
+  return SOURCE_LABEL[source] ?? `read by ${source}`;
+}
 
 export function StoryClient({ shared }: { shared?: string }) {
   const [story, setStory] = useState<GeneratedStory | null>(null);
@@ -96,7 +101,7 @@ export function StoryClient({ shared }: { shared?: string }) {
         </Link>
         <div className="flex items-center gap-5">
           <span className="hidden sm:inline">
-            {SOURCE_LABEL[story.narrative.meta?.source ?? ""] ?? ""}
+            {sourceLabel(story.narrative.meta?.source)}
           </span>
           <button
             onClick={copyLink}

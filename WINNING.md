@@ -40,6 +40,9 @@ demo video and a Devpost gallery full of dev tools.
    pivotal week get structurally different pages.
 3. It is honest, not flattering. It names what you avoided.
 4. Every result is a shareable URL with its own social card.
+5. Plug and play: a judge can connect their own OpenAI, Claude, or local model
+   (Ollama, Groq, OpenRouter) and try it with zero setup on our side. The key
+   stays in their browser. Arc is an open instrument, not a closed demo.
 
 ## Before the deadline
 

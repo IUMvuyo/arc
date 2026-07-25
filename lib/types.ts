@@ -44,7 +44,11 @@ export interface Narrative {
   /** Ordered beats. First is `opening`, last is `closing`, exactly one `turning-point`. */
   beats: Beat[];
   meta?: {
-    source?: "gpt-5.6" | "cache" | "heuristic";
+    /**
+     * Where the reading came from: "cache" (baked demo), "heuristic" (local),
+     * or a model id when read by an AI (e.g. "gpt-5.6", "claude-opus-4-8").
+     */
+    source?: string;
   };
 }
 

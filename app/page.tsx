@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -8,8 +8,10 @@ import { DEMO_WEEKS, type DemoWeek } from "@/lib/demo";
 import { normalizeUpload } from "@/lib/ingest";
 import { ACCENTS } from "@/lib/palette";
 import { encodeNarrative } from "@/lib/share";
+import { loadAIConfig, type AIConfig } from "@/lib/ai-config";
 import { Marquee } from "@/components/Marquee";
 import { Label } from "@/components/Label";
+import { AIConnect } from "@/components/AIConnect";
 import type { Narrative, Tone } from "@/lib/types";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -47,8 +49,15 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
   const [image, setImage] = useState<{ data: string; name: string } | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Load any AI the visitor connected in a previous session.
+  useEffect(() => {
+    setAiConfig(loadAIConfig());
+  }, []);
 
   function readImage(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -91,7 +100,7 @@ export default function Home() {
       const res = await fetch("/api/analyze/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input, image: image?.data }),
+        body: JSON.stringify({ input, image: image?.data, config: aiConfig }),
       });
       if (!res.ok || !res.body) {
         throw new Error((await res.text()) || "Arc could not read that. Try again.");
@@ -156,12 +165,23 @@ export default function Home() {
       {/* Masthead */}
       <header className="flex items-center justify-between border-b border-paper/12 px-5 py-4 sm:px-8 md:px-12">
         <span className="font-mono text-sm font-bold uppercase tracking-[0.3em]">Arc</span>
-        <div className="hidden font-mono text-[0.7rem] uppercase tracking-[0.28em] text-paper/45 sm:block">
+        <div className="hidden font-mono text-[0.7rem] uppercase tracking-[0.28em] text-paper/45 md:block">
           an instrument for reading your own week
         </div>
-        <span className="font-mono text-[0.7rem] uppercase tracking-[0.28em] text-paper/45">
-          Ed. 001 / 2026
-        </span>
+        <button
+          onClick={() => setAiOpen(true)}
+          data-cursor="hover"
+          className="flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-paper/55 transition-colors hover:text-paper"
+          title="Connect your own AI"
+        >
+          <span
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ backgroundColor: aiConfig ? "rgb(var(--accent))" : "rgba(250,250,247,0.3)" }}
+          />
+          <span className="max-w-[10rem] truncate">
+            {aiConfig ? aiConfig.model : "connect your AI"}
+          </span>
+        </button>
       </header>
 
       {/* Hero: asymmetric broken type against a mono process index */}
@@ -433,6 +453,9 @@ export default function Home() {
         <span>the engine builds</span>
         <span className="md:text-right">nothing is stored</span>
       </footer>
+
+      {/* Connect-your-own-AI panel */}
+      <AIConnect open={aiOpen} onClose={() => setAiOpen(false)} onSaved={setAiConfig} />
 
       {/* The reading room: the through-line and beats assemble live */}
       <AnimatePresence>

@@ -52,6 +52,11 @@ Three things make it land in ninety seconds:
   composed by narrative shape, one kinetic type moment at the detected turning
   point, a data derived "shape of the week" seismograph, section nav dots, and
   keyboard travel.
+- **A record of your weeks.** Every week you build is saved to this browser and
+  stacks up in an archive (`/weeks`): a timeline of your readings, with a
+  longitudinal "shape of your months" header. Arc becomes something you return to,
+  not a one-shot. Local-first today (`lib/archive.ts`); cloud sync with accounts is
+  the clean follow-on.
 - **Shareable permalinks.** Every generated site is encoded into its own URL with
   no backend, and each shared link gets a personalized social preview card.
 - **Three prepared weeks** in contrasting registers, one tap away, so the whole
@@ -168,7 +173,9 @@ for the demo video.
 
 ---
 
-## Out of scope (roadmap)
+## Roadmap
 
-Real calendar and journal integrations, accounts and persistence beyond a shared
-link, and a native mobile build. The responsive web build is enough for now.
+- **Cloud sync + accounts.** The archive (`lib/archive.ts`) is a clean serializable
+  store designed to mirror to a backend 1:1. Next step: Firebase Auth + Firestore
+  so your weeks follow you across devices.
+- Real calendar and journal integrations, and a native mobile build.

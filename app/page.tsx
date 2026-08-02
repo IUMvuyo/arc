@@ -9,6 +9,7 @@ import { normalizeUpload } from "@/lib/ingest";
 import { ACCENTS } from "@/lib/palette";
 import { encodeNarrative } from "@/lib/share";
 import { loadAIConfig, type AIConfig } from "@/lib/ai-config";
+import { listWeeks } from "@/lib/archive";
 import { Marquee } from "@/components/Marquee";
 import { Label } from "@/components/Label";
 import { AIConnect } from "@/components/AIConnect";
@@ -51,12 +52,14 @@ export default function Home() {
   const [image, setImage] = useState<{ data: string; name: string } | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
+  const [weekCount, setWeekCount] = useState(0);
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Load any AI the visitor connected in a previous session.
+  // Load what this browser remembers: a connected AI, and any saved weeks.
   useEffect(() => {
     setAiConfig(loadAIConfig());
+    setWeekCount(listWeeks().length);
   }, []);
 
   function readImage(file: File): Promise<string> {
@@ -168,20 +171,31 @@ export default function Home() {
         <div className="hidden font-mono text-[0.7rem] uppercase tracking-[0.28em] text-paper/45 md:block">
           an instrument for reading your own week
         </div>
-        <button
-          onClick={() => setAiOpen(true)}
-          data-cursor="hover"
-          className="flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-paper/55 transition-colors hover:text-paper"
-          title="Connect your own AI"
-        >
-          <span
-            className="h-2 w-2 shrink-0 rounded-full"
-            style={{ backgroundColor: aiConfig ? "rgb(var(--accent))" : "rgba(250,250,247,0.3)" }}
-          />
-          <span className="max-w-[10rem] truncate">
-            {aiConfig ? aiConfig.model : "connect your AI"}
-          </span>
-        </button>
+        <div className="flex items-center gap-5">
+          {weekCount > 0 ? (
+            <Link
+              href="/weeks"
+              data-cursor="hover"
+              className="font-mono text-[0.7rem] uppercase tracking-[0.22em] text-paper/55 transition-colors hover:text-paper"
+            >
+              {weekCount} {weekCount === 1 ? "week" : "weeks"} →
+            </Link>
+          ) : null}
+          <button
+            onClick={() => setAiOpen(true)}
+            data-cursor="hover"
+            className="flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-paper/55 transition-colors hover:text-paper"
+            title="Connect your own AI"
+          >
+            <span
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: aiConfig ? "rgb(var(--accent))" : "rgba(250,250,247,0.3)" }}
+            />
+            <span className="max-w-[9rem] truncate">
+              {aiConfig ? aiConfig.model : "connect your AI"}
+            </span>
+          </button>
+        </div>
       </header>
 
       {/* Hero: asymmetric broken type against a mono process index */}

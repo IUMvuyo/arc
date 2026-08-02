@@ -6,6 +6,7 @@ import { motion, useScroll } from "framer-motion";
 import type { GeneratedStory, Narrative } from "@/lib/types";
 import { generateStory } from "@/lib/generator";
 import { encodeNarrative, decodeNarrative } from "@/lib/share";
+import { saveWeek, hasWeek } from "@/lib/archive";
 import { StoryRenderer } from "@/components/StoryRenderer";
 import { NavDots } from "@/components/NavDots";
 
@@ -24,6 +25,8 @@ export function StoryClient({ shared }: { shared?: string }) {
   const [story, setStory] = useState<GeneratedStory | null>(null);
   const [missing, setMissing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [current, setCurrent] = useState<Narrative | null>(null);
   const { scrollYProgress } = useScroll();
 
   useEffect(() => {
@@ -31,6 +34,7 @@ export function StoryClient({ shared }: { shared?: string }) {
     // one this browser just generated. Either way, publish a shareable URL.
     try {
       let narrative: Narrative | null = shared ? decodeNarrative(shared) : null;
+      const fresh = !shared;
       if (!narrative) {
         const raw = sessionStorage.getItem("arc:narrative");
         narrative = raw ? (JSON.parse(raw) as Narrative) : null;
@@ -40,17 +44,29 @@ export function StoryClient({ shared }: { shared?: string }) {
         return;
       }
       setStory(generateStory(narrative));
+      setCurrent(narrative);
       window.scrollTo(0, 0);
 
-      // Reflect a shareable permalink into the address bar without a reload.
-      if (!shared) {
+      if (fresh) {
+        // A week you just built. Publish a permalink and save it to your archive.
         const url = `${window.location.pathname}?s=${encodeNarrative(narrative)}`;
         window.history.replaceState(null, "", url);
+        saveWeek(narrative, Date.now());
+        setSaved(true);
+      } else {
+        // A shared or example link: offer to keep it, note if it is already saved.
+        setSaved(hasWeek(narrative));
       }
     } catch {
       setMissing(true);
     }
   }, [shared]);
+
+  function keep() {
+    if (!current) return;
+    saveWeek(current, Date.now());
+    setSaved(true);
+  }
 
   async function copyLink() {
     try {
@@ -103,6 +119,23 @@ export function StoryClient({ shared }: { shared?: string }) {
           <span className="hidden sm:inline">
             {sourceLabel(story.narrative.meta?.source)}
           </span>
+          {saved ? (
+            <Link
+              href="/weeks"
+              data-cursor="hover"
+              className="hidden uppercase tracking-[0.24em] transition-opacity hover:opacity-100 sm:inline"
+            >
+              in your weeks ↗
+            </Link>
+          ) : (
+            <button
+              onClick={keep}
+              data-cursor="hover"
+              className="hidden uppercase tracking-[0.24em] transition-opacity hover:opacity-100 sm:inline"
+            >
+              keep this +
+            </button>
+          )}
           <button
             onClick={copyLink}
             data-cursor="hover"
@@ -129,14 +162,27 @@ export function StoryClient({ shared }: { shared?: string }) {
         >
           {copied ? "link copied" : "share this site →"}
         </button>
-        <Link
-          href="/"
-          className="font-mono text-xs uppercase tracking-[0.24em] text-fg/45 underline-offset-4 hover:underline"
-          data-cursor="hover"
-          style={{ color: `rgb(${chrome} / 0.45)` }}
-        >
-          Build another week →
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link
+            href="/weeks"
+            onClick={() => {
+              if (!saved) keep();
+            }}
+            className="font-mono text-xs uppercase tracking-[0.24em] underline-offset-4 hover:underline"
+            data-cursor="hover"
+            style={{ color: `rgb(${chrome} / 0.45)` }}
+          >
+            {saved ? "your weeks →" : "keep + your weeks →"}
+          </Link>
+          <Link
+            href="/"
+            className="font-mono text-xs uppercase tracking-[0.24em] underline-offset-4 hover:underline"
+            data-cursor="hover"
+            style={{ color: `rgb(${chrome} / 0.45)` }}
+          >
+            Build another week →
+          </Link>
+        </div>
       </div>
     </div>
   );

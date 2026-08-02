@@ -7,6 +7,7 @@ import type { GeneratedStory, Narrative } from "@/lib/types";
 import { generateStory } from "@/lib/generator";
 import { encodeNarrative, decodeNarrative } from "@/lib/share";
 import { saveWeek, hasWeek } from "@/lib/archive";
+import { syncWeekUp } from "@/lib/cloud";
 import { StoryRenderer } from "@/components/StoryRenderer";
 import { NavDots } from "@/components/NavDots";
 
@@ -48,10 +49,12 @@ export function StoryClient({ shared }: { shared?: string }) {
       window.scrollTo(0, 0);
 
       if (fresh) {
-        // A week you just built. Publish a permalink and save it to your archive.
+        // A week you just built. Publish a permalink and save it to your archive
+        // (and to the cloud if you are signed in).
         const url = `${window.location.pathname}?s=${encodeNarrative(narrative)}`;
         window.history.replaceState(null, "", url);
-        saveWeek(narrative, Date.now());
+        const entry = saveWeek(narrative, Date.now());
+        void syncWeekUp(entry);
         setSaved(true);
       } else {
         // A shared or example link: offer to keep it, note if it is already saved.
@@ -64,7 +67,8 @@ export function StoryClient({ shared }: { shared?: string }) {
 
   function keep() {
     if (!current) return;
-    saveWeek(current, Date.now());
+    const entry = saveWeek(current, Date.now());
+    void syncWeekUp(entry);
     setSaved(true);
   }
 

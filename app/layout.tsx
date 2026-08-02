@@ -3,6 +3,7 @@ import { Fraunces, Inter, Space_Mono } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import "./globals.css";
 import { Cursor } from "@/components/Cursor";
+import { CloudProvider } from "@/components/CloudProvider";
 
 // The display face carries the emotion. Variable axes animate on scroll.
 const display = Fraunces({
@@ -70,8 +71,10 @@ export default function RootLayout({
         {/* Honor prefers-reduced-motion globally: animations snap to their end
             state (content visible) instead of animating. */}
         <MotionConfig reducedMotion="user">
-          <Cursor />
-          {children}
+          <CloudProvider>
+            <Cursor />
+            {children}
+          </CloudProvider>
         </MotionConfig>
       </body>
     </html>

@@ -52,11 +52,13 @@ Three things make it land in ninety seconds:
   composed by narrative shape, one kinetic type moment at the detected turning
   point, a data derived "shape of the week" seismograph, section nav dots, and
   keyboard travel.
-- **A record of your weeks.** Every week you build is saved to this browser and
+- **A record of your weeks, that follows you.** Every week you build is saved and
   stacks up in an archive (`/weeks`): a timeline of your readings, with a
-  longitudinal "shape of your months" header. Arc becomes something you return to,
-  not a one-shot. Local-first today (`lib/archive.ts`); cloud sync with accounts is
-  the clean follow-on.
+  longitudinal "shape of your months" header. Local-first by default
+  (`lib/archive.ts`), with **optional cloud sync**: sign in with Google and your
+  weeks sync across devices via Firebase (`lib/cloud.ts`, off unless configured,
+  see [FIREBASE_SETUP.md](FIREBASE_SETUP.md)). Arc becomes something you return to,
+  not a one-shot.
 - **Shareable permalinks.** Every generated site is encoded into its own URL with
   no backend, and each shared link gets a personalized social preview card.
 - **Three prepared weeks** in contrasting registers, one tap away, so the whole
@@ -175,7 +177,6 @@ for the demo video.
 
 ## Roadmap
 
-- **Cloud sync + accounts.** The archive (`lib/archive.ts`) is a clean serializable
-  store designed to mirror to a backend 1:1. Next step: Firebase Auth + Firestore
-  so your weeks follow you across devices.
 - Real calendar and journal integrations, and a native mobile build.
+- A "connect an Agent SDK / subscription auth" option so readings can run on a
+  Claude Pro/Max plan instead of a raw API key.

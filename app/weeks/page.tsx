@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { listWeeks, deleteWeek, weekSignals, type SavedWeek } from "@/lib/archive";
+import { syncWeekRemove } from "@/lib/cloud";
 import { encodeNarrative } from "@/lib/share";
 import { ACCENTS } from "@/lib/palette";
 import { Label } from "@/components/Label";
+import { useCloud } from "@/components/CloudProvider";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -25,13 +27,16 @@ function savedLabel(ms: number): string {
 
 export default function WeeksPage() {
   const [weeks, setWeeks] = useState<SavedWeek[] | null>(null);
+  const { ready, user, status, version, signIn, signOut } = useCloud();
 
+  // Re-read the local archive on mount and whenever a cloud pull changed it.
   useEffect(() => {
     setWeeks(listWeeks());
-  }, []);
+  }, [version]);
 
   function remove(id: string) {
     deleteWeek(id);
+    void syncWeekRemove(id);
     setWeeks(listWeeks());
   }
 
@@ -59,6 +64,40 @@ export default function WeeksPage() {
           + new week
         </Link>
       </header>
+
+      {/* Cloud sync bar. Only when this deployment has Firebase configured. */}
+      {ready ? (
+        <div className="flex items-center justify-between border-b border-paper/12 px-5 py-3 font-mono text-[0.66rem] uppercase tracking-[0.22em] sm:px-8 md:px-12">
+          {user ? (
+            <>
+              <span className="flex items-center gap-2 text-paper/50">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                {status === "syncing" ? "syncing…" : "synced"} · {user.email ?? "signed in"}
+              </span>
+              <button
+                onClick={() => signOut()}
+                data-cursor="hover"
+                className="text-paper/45 hover:text-paper"
+              >
+                sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="text-paper/45">
+                sync your weeks across devices
+              </span>
+              <button
+                onClick={() => signIn()}
+                data-cursor="hover"
+                className="text-accent hover:opacity-80"
+              >
+                sign in with Google →
+              </button>
+            </>
+          )}
+        </div>
+      ) : null}
 
       <div className="px-5 py-16 sm:px-8 md:px-12 md:py-24">
         <motion.h1
